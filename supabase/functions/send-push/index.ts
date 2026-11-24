@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const supabaseUrl = Deno.env.get("BLOCK_URL") ?? "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const vapidPublic = Deno.env.get("VAPID_PUBLIC_KEY") ?? "";
   const vapidPrivate = Deno.env.get("VAPID_PRIVATE_KEY") ?? "";
