@@ -53,6 +53,8 @@ async function enablePushNotifications(){
   button.disabled=true;
   button.textContent='Проверяем браузер…';
   try{
+    // Даём браузеру отрисовать статус до выполнения проверок и системных запросов.
+    await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
     if(!me||!db)throw new Error('Сессия BLOCK не найдена. Выйди из аккаунта и войди снова.');
     if(!window.isSecureContext)throw new Error('Сайт открыт не через HTTPS. Открой официальную HTTPS-ссылку BLOCK.');
     if(!('serviceWorker' in navigator))throw new Error('В этом браузере нет поддержки Service Worker. Проверь Chrome.');
@@ -60,6 +62,7 @@ async function enablePushNotifications(){
     if(!('Notification' in window))throw new Error('Браузер не предоставляет API уведомлений. Попробуй Google Chrome.');
 
     button.textContent='Запрашиваем разрешение…';
+    await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
     let permission=Notification.permission;
     if(permission==='default')permission=await Notification.requestPermission();
     if(permission!=='granted'){
@@ -68,6 +71,7 @@ async function enablePushNotifications(){
     }
 
     button.textContent='Регистрируем уведомления…';
+    await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
     const baseUrl=new URL('./',document.baseURI);
     const registration=await navigator.serviceWorker.register(new URL('sw.js',baseUrl),{
       scope:baseUrl.pathname,
