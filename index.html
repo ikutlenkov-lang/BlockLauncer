@@ -43,7 +43,7 @@ function renderFriendHeader(){if(!friend)return;$('friendName').textContent=frie
 function openFriendProfile(){if(!friend)return;$('friendViewAvatar').innerHTML=avatarMarkup(friend);$('friendViewName').textContent=friend.username||'Пользователь BLOCK';$('friendProfileModal').classList.remove('hidden')}
 function setConnection(s){$('connectionText').textContent=s}
 
-const VAPID_PUBLIC_KEY='BD3PbWlV34RUMSqxP-Ib6PPlKt_aEbyLQUhohrIbbBZx0loLcTQxWZK6Ev_erf3PfJTbM2NgHu_FzHNVJcAqbPU';
+const VAPID_PUBLIC_KEY='BEosifvQLV3sjui_CLjlNEL-u8uHtSbj6cQAnMsQiSm34Hfk8GWApylMeMuI9xpS6HhVVcAOYdvXgSvhdV6n0f8';
 function base64UrlToBytes(value){const padding='='.repeat((4-value.length%4)%4);const base=(value+padding).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(base);return Uint8Array.from(raw,c=>c.charCodeAt(0))}
 async function enablePushNotifications(){
   const button=$('pushBtn');
