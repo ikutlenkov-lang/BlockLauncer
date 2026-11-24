@@ -53,7 +53,7 @@ jobs:
               marker = "    <application"
               if marker not in text:
                   raise SystemExit("Could not find <application> in AndroidManifest.xml")
-              text = text.replace(marker, "\\n".join(missing) + "\\n" + marker, 1)
+              text = text.replace(marker, "\n".join(missing) + "\n" + marker, 1)
               manifest.write_text(text, encoding="utf-8")
 
           main_activity = next(Path("android/app/src/main").rglob("MainActivity.java"), None)
@@ -78,7 +78,7 @@ jobs:
               position = source.rfind("}")
               if position < 0:
                   raise SystemExit("Could not find end of MainActivity.java")
-              source = source[:position] + method + "\\n" + source[position:]
+              source = source[:position] + method + "\n" + source[position:]
               main_activity.write_text(source, encoding="utf-8")
 
           print("Microphone and Android notification permission configured.")
