@@ -4,8 +4,6 @@ self.addEventListener('push', event => {
   const title = data.title || 'BLOCK';
   const options = {
     body: data.body || 'У тебя новое сообщение',
-    icon: './icon-192.png',
-    badge: './icon-192.png',
     tag: data.tag || 'block-new-message',
     renotify: true,
     data: { url: data.url || self.registration.scope }
