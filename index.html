@@ -20,7 +20,7 @@
 </head>
 <body>
 <div class="shell"><main class="window">
-<header class="topbar"><div class="logo">B</div><div><div class="brand">BLO<span>CK</span></div><div class="tagline">личный мессенджер</div></div><div class="top-actions"><div class="status"><span class="dot"></span><span id="connectionText">подключение</span></div><button class="ghost hidden" id="profileBtn">Профиль</button><button class="ghost hidden" id="logoutBtn">Выйти</button></div></header>
+<header class="topbar"><div class="logo">B</div><div><div class="brand">BLO<span>CK</span></div><div class="tagline">личный мессенджер</div></div><div class="top-actions"><button class="ghost hidden" id="pushBtn" type="button" title="Push-уведомления">🔔 Уведомления</button><div class="status"><span class="dot"></span><span id="connectionText">подключение</span></div><button class="ghost hidden" id="profileBtn">Профиль</button><button class="ghost hidden" id="logoutBtn">Выйти</button></div></header>
 <div class="content">
 <section class="auth-wrap" id="authScreen"><div class="auth-card"><div class="auth-mark">B</div><h1 id="authTitle">Войти в BLOCK</h1><p>Создай логин и пароль — почта не понадобится. Логин: 3–24 символа, латинские буквы, цифры или _.</p><form id="authForm"><label class="field" id="emailField"><span>Email</span><input id="email" type="email" autocomplete="email" placeholder="name@example.com"></label><label class="field" id="usernameField"><span>Имя пользователя</span><input id="username" autocomplete="username" minlength="3" maxlength="40" required placeholder="Например, player_01"></label><label class="field"><span>Пароль</span><input id="password" type="password" autocomplete="current-password" minlength="8" maxlength="100" required placeholder="Не менее 8 символов"></label><button class="primary" id="authSubmit" type="submit">Войти</button></form><div class="error" id="authError"></div><div class="switch"><span id="switchText">Нет аккаунта?</span><button id="switchMode" type="button">Создать</button></div></div></section>
 <section class="pick-wrap hidden" id="pickScreen"><div class="pick-card"><h2>Выбери друга</h2><p>В BLOCK будет один личный чат. Выбери человека, с которым хочешь общаться.</p><div class="users" id="usersList"><div class="empty">Загружаем пользователей…</div></div><div class="error" id="usersError"></div></div></section>
@@ -35,13 +35,37 @@ const $=id=>document.getElementById(id), KEY='block_supabase_session_v1', FRIEND
 let db=null,me=null,friend=null,channel=null,presenceChannel=null,callChannel=null,registerMode=false,historyIds=new Set(),sending=false,pollTimer=null,pc=null,localStream=null,activeCallId=null,incomingCallId=null,pendingIce=[],callBusy=false,callChannelReady=Promise.resolve(),voiceRecorder=null,voiceChunks=[],voiceBlob=null,voicePreviewUrl=null,voiceTimer=null,voiceStartedAt=0,voiceDuration=0,discardVoiceRecording=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const toast=t=>{const el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)};
-function show(which){['authScreen','pickScreen','chatScreen'].forEach(id=>$(id).classList.toggle('hidden',id!==which));$('logoutBtn').classList.toggle('hidden',which==='authScreen');$('profileBtn').classList.toggle('hidden',which==='authScreen')}
+function show(which){['authScreen','pickScreen','chatScreen'].forEach(id=>$(id).classList.toggle('hidden',id!==which));$('logoutBtn').classList.toggle('hidden',which==='authScreen');$('profileBtn').classList.toggle('hidden',which==='authScreen');$('pushBtn').classList.toggle('hidden',which==='authScreen')}
 function avatarMarkup(user){const initial=esc((user?.username||'?').slice(0,1).toUpperCase());return user?.avatar_url?'<img src="'+esc(user.avatar_url)+'" alt="">':initial}
 function nickStore(){try{return JSON.parse(localStorage.getItem('block_friend_nicks_'+me.id)||'{}')}catch{return {}}}
 function friendDisplayName(user){return nickStore()[String(user.id)]||user.username}
 function renderFriendHeader(){if(!friend)return;$('friendName').textContent=friendDisplayName(friend);$('friendAvatar').innerHTML=avatarMarkup(friend);$('friendState').textContent=friend.status_text||'Личный чат BLOCK'}
 function openFriendProfile(){if(!friend)return;$('friendViewAvatar').innerHTML=avatarMarkup(friend);$('friendViewName').textContent=friend.username||'Пользователь BLOCK';$('friendProfileModal').classList.remove('hidden')}
 function setConnection(s){$('connectionText').textContent=s}
+
+const VAPID_PUBLIC_KEY='BD3PbWlV34RUMSqxP-Ib6PPlKt_aEbyLQUhohrIbbBZx0loLcTQxWZK6Ev_erf3PfJTbM2NgHu_FzHNVJcAqbPU';
+function base64UrlToBytes(value){const padding='='.repeat((4-value.length%4)%4);const base=(value+padding).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(base);return Uint8Array.from(raw,c=>c.charCodeAt(0))}
+async function enablePushNotifications(){
+  const button=$('pushBtn');
+  if(!me||!db)return;
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){toast('Этот браузер не поддерживает Push-уведомления');return}
+  button.disabled=true;button.textContent='Подключаем…';
+  try{
+    const permission=await Notification.requestPermission();
+    if(permission!=='granted'){toast(permission==='denied'?'Разреши уведомления в настройках браузера':'Разрешение не выдано');return}
+    const registration=await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+    let subscription=await registration.pushManager.getSubscription();
+    if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64UrlToBytes(VAPID_PUBLIC_KEY)});
+    const json=subscription.toJSON();
+    if(!json.endpoint||!json.keys?.p256dh||!json.keys?.auth)throw new Error('Браузер не вернул ключи подписки');
+    const {error}=await db.from('push_subscriptions').upsert({user_id:me.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth},{onConflict:'user_id,endpoint'});
+    if(error)throw error;
+    button.textContent='🔔 Уведомления включены';toast('Уведомления BLOCK включены на этом устройстве');
+  }catch(error){toast('Не удалось включить уведомления: '+(error.message||error));button.textContent='🔔 Уведомления'}
+  finally{button.disabled=false}
+}
+$('pushBtn').addEventListener('click',enablePushNotifications);
 function authMode(){$('authTitle').textContent=registerMode?'Создать аккаунт':'Войти в BLOCK';$('authSubmit').textContent=registerMode?'Зарегистрироваться':'Войти';$('switchText').textContent=registerMode?'Уже есть аккаунт?':'Нет аккаунта?';$('switchMode').textContent=registerMode?'Войти':'Создать';$('password').autocomplete=registerMode?'new-password':'current-password';$('emailField').classList.add('hidden');$('email').required=false;$('usernameField').classList.remove('hidden');$('username').required=true;$('username').autocomplete='username';$('username').placeholder='Например, player_01'}
 function errorText(e){if(e?.message?.includes('Invalid login'))return 'Неверный логин или пароль.';if(e?.message?.includes('User already registered'))return 'Такой логин уже занят. Выбери другой.';if(e?.message?.includes('Email not confirmed'))return 'В Supabase нужно отключить подтверждение email: Authentication → Providers → Email → Confirm email.';if(e?.message?.includes('duplicate key')||e?.code==='23505')return 'Такой логин уже занят. Выбери другой.';return e?.message||'Произошла ошибка. Попробуй ещё раз.'}
 async function loadProfile(){const {data,error}=await db.from('profiles').select('id,username,avatar_url,status_text').eq('id',me.id).single();if(error)throw error;me=data}
