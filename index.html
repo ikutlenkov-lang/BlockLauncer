@@ -211,7 +211,7 @@ $('recordVoiceBtn').addEventListener('click',()=>{if(voiceRecorder&&voiceRecorde
 $('cancelVoiceBtn').addEventListener('click',()=>{if(voiceRecorder&&voiceRecorder.state==='recording'){discardVoiceRecording=true;stopVoiceRecording()}clearVoicePreview();$('recordingIndicator').classList.add('hidden');$('recordVoiceBtn').textContent='🎙'});
 $('sendVoiceBtn').addEventListener('click',sendVoiceMessage);
 $('sendBtn').addEventListener('click',async()=>{const text=$('messageInput').value.trim();if(!text)return;$('messageInput').value='';$('messageInput').style.height='42px';await sendMessage(text)});
-$('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendBtn').click()}});
+$('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&$('enterSetting').checked){e.preventDefault();$('sendBtn').click()}});
 $('messageInput').addEventListener('input',e=>{e.target.style.height='42px';e.target.style.height=Math.min(e.target.scrollHeight,130)+'px'});
 $('attachBtn').addEventListener('click',()=>$('fileInput').click());
 $('fileInput').addEventListener('change',async()=>{const file=$('fileInput').files[0];if(!file)return;if(file.size>20*1024*1024){toast('Файл больше 20 МБ');$('fileInput').value='';return}try{toast('Загружаем файл…');const path=me.id+'/'+crypto.randomUUID()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const {error}=await db.storage.from('block-files').upload(path,file,{upsert:false});if(error)throw error;await sendMessage('',path,file.name)}catch(err){toast('Ошибка файла: '+errorText(err))}finally{$('fileInput').value=''}});
