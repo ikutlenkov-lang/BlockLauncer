@@ -37,12 +37,12 @@ language sql
 security definer
 set search_path = public
 stable
-as $
+as $$
   select exists (
     select 1 from public.block_group_members m
     where m.group_id = p_group_id and m.user_id = auth.uid()
   );
-$;
+$$;
 revoke all on function public.block_is_group_member(uuid) from public;
 grant execute on function public.block_is_group_member(uuid) to authenticated;
 
