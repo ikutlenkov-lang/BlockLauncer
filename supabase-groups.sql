@@ -31,29 +31,36 @@ alter table public.block_groups enable row level security;
 alter table public.block_group_members enable row level security;
 alter table public.block_group_messages enable row level security;
 
+create or replace function public.block_is_group_member(p_group_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $
+  select exists (
+    select 1 from public.block_group_members m
+    where m.group_id = p_group_id and m.user_id = auth.uid()
+  );
+$;
+revoke all on function public.block_is_group_member(uuid) from public;
+grant execute on function public.block_is_group_member(uuid) to authenticated;
+
+
 drop policy if exists "Members can view their groups" on public.block_groups;
 create policy "Members can view their groups" on public.block_groups
   for select to authenticated
-  using (exists (
-    select 1 from public.block_group_members m
-    where m.group_id = block_groups.id and m.user_id = auth.uid()
-  ));
+  using (public.block_is_group_member(block_groups.id));
 
 drop policy if exists "Group members can view memberships" on public.block_group_members;
 create policy "Group members can view memberships" on public.block_group_members
   for select to authenticated
-  using (exists (
-    select 1 from public.block_group_members mine
-    where mine.group_id = block_group_members.group_id and mine.user_id = auth.uid()
-  ));
+  using (public.block_is_group_member(block_group_members.group_id));
 
 drop policy if exists "Group members can read messages" on public.block_group_messages;
 create policy "Group members can read messages" on public.block_group_messages
   for select to authenticated
-  using (exists (
-    select 1 from public.block_group_members m
-    where m.group_id = block_group_messages.group_id and m.user_id = auth.uid()
-  ));
+  using (public.block_is_group_member(block_group_messages.group_id));
 
 drop policy if exists "Members can send messages as themselves" on public.block_group_messages;
 create policy "Members can send messages as themselves" on public.block_group_messages
