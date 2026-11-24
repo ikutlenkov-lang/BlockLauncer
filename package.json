@@ -1,0 +1,17 @@
+{
+  "name": "block-messenger-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android wrapper for BLOCK Messenger",
+  "scripts": {
+    "build:web": "node -e \"require('fs').mkdirSync('www',{recursive:true});require('fs').copyFileSync('index.html','www/index.html')\"",
+    "android:sync": "npm run build:web && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "latest",
+    "@capacitor/core": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest"
+  }
+}
