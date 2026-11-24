@@ -16,7 +16,7 @@
 .chat{width:100%;display:flex;flex-direction:column;min-width:0}.chat-head{height:74px;display:flex;align-items:center;padding:0 22px;gap:12px;border-bottom:1px solid var(--line);flex:none}.friend-name{font-weight:800}.friend-state{font-size:11px;color:var(--green);margin-top:3px}.messages{flex:1;min-height:0;overflow-y:auto;padding:24px clamp(14px,5vw,70px);display:flex;flex-direction:column;gap:11px}.date-pill{align-self:center;color:#91a0b8;background:#172338;border:1px solid #293a55;border-radius:30px;padding:5px 12px;font-size:10px;margin:2px 0 10px}.bubble{max-width:min(76%,580px);padding:11px 14px;border-radius:17px;background:#1a2940;border:1px solid #2b3d58;align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.45;font-size:14px}.bubble.mine{align-self:flex-end;background:linear-gradient(135deg,#326fc8,#28569e);border-color:#477bc2;border-bottom-right-radius:5px}.bubble:not(.mine){border-bottom-left-radius:5px}.bubble-time{font-size:10px;color:#c3d2e8;text-align:right;margin-top:6px}.file-link{display:block;color:#d7e8ff;text-decoration:underline;margin-top:5px;font-size:12px}.composer-area{padding:14px 20px 17px;border-top:1px solid var(--line);flex:none}.composer{display:flex;align-items:flex-end;gap:9px;background:#0a1220;border:1px solid #2c3c55;border-radius:17px;padding:8px}.composer textarea{flex:1;resize:none;min-height:42px;max-height:130px;background:transparent;border:0;color:white;padding:10px 4px;outline:none}.tool{width:41px;height:41px;border-radius:12px;background:transparent;color:#a3b6d4;font-size:19px}.send{width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#83baff,#3978e8);color:#081425;font-weight:900;font-size:18px}.composer-note{text-align:center;font-size:10px;color:#6f809c;margin-top:8px}.hidden{display:none!important}
 .toast{position:fixed;bottom:25px;left:50%;transform:translate(-50%,15px);opacity:0;background:#1c2c44;border:1px solid #3a5274;padding:10px 15px;border-radius:12px;font-size:12px;transition:.2s;pointer-events:none;z-index:10}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:650px){.shell{padding:0}.window{height:100dvh;min-height:0;border-radius:0;border:0}.topbar{height:64px;padding:0 15px}.tagline{display:none}.auth-wrap,.pick-wrap{padding:18px}.auth-card,.pick-card{padding:23px}.chat-head{height:67px;padding:0 14px}.messages{padding:17px 12px}.composer-area{padding:10px}.bubble{max-width:88%}}
-</style>
+.account-danger{margin-top:20px;padding:14px;border:1px solid #70404a;border-radius:13px;background:#321c25}.account-danger strong{display:block;color:#ffb0b8;font-size:13px}.account-danger p{margin:6px 0 11px!important;color:#d7aeb4!important;font-size:11px!important}.danger-account{width:100%;padding:11px 12px;border:1px solid #a84c5c;border-radius:10px;background:#6b2635;color:#fff;font-weight:800}.danger-account:disabled{opacity:.6;cursor:wait}</style>
 </head>
 <body>
 <div class="shell"><main class="window">
@@ -25,7 +25,7 @@
 <section class="auth-wrap" id="authScreen"><div class="auth-card"><div class="auth-mark">B</div><h1 id="authTitle">Войти в BLOCK</h1><p>Создай логин и пароль — почта не понадобится. Логин: 3–24 символа, латинские буквы, цифры или _.</p><form id="authForm"><label class="field" id="emailField"><span>Email</span><input id="email" type="email" autocomplete="email" placeholder="name@example.com"></label><label class="field" id="usernameField"><span>Имя пользователя</span><input id="username" autocomplete="username" minlength="3" maxlength="40" required placeholder="Например, player_01"></label><label class="field"><span>Пароль</span><input id="password" type="password" autocomplete="current-password" minlength="8" maxlength="100" required placeholder="Не менее 8 символов"></label><button class="primary" id="authSubmit" type="submit">Войти</button></form><div class="error" id="authError"></div><div class="switch"><span id="switchText">Нет аккаунта?</span><button id="switchMode" type="button">Создать</button></div></div></section>
 <section class="pick-wrap hidden" id="pickScreen"><div class="pick-card"><h2>Выбери друга</h2><p>В BLOCK будет один личный чат. Выбери человека, с которым хочешь общаться.</p><div class="users" id="usersList"><div class="empty">Загружаем пользователей…</div></div><div class="error" id="usersError"></div></div></section>
 <section class="chat hidden" id="chatScreen"><header class="chat-head"><div class="avatar" id="friendAvatar">F</div><div style="min-width:0"><div class="chat-title-row"><div class="friend-name" id="friendName">Друг</div><button class="nick-edit" id="editFriendNick">✎ Ник</button></div><div class="friend-state" id="friendState">Личный чат BLOCK</div></div><div style="margin-left:auto;display:flex;gap:7px;align-items:center"><button class="ghost" id="voiceCallBtn" title="Голосовой звонок">☎ Позвонить</button><button class="ghost hidden" id="hangupBtn">Завершить</button><button class="ghost" id="changeFriend">Сменить друга</button></div></header><div class="messages" id="messages"><div class="date-pill">Сообщения</div></div><div class="composer-area"><div class="composer"><input id="fileInput" type="file" class="hidden" accept="image/*,video/*,.pdf,.txt,.doc,.docx,.zip"><button class="tool" id="attachBtn" title="Прикрепить файл" aria-label="Прикрепить файл">＋</button><textarea id="messageInput" rows="1" placeholder="Написать сообщение…"></textarea><button class="send" id="sendBtn" title="Отправить">➤</button></div><div class="composer-note">Enter — отправить · Shift + Enter — новая строка</div></div></section>
-</div></main></div><div class="profile-modal hidden" id="profileModal"><div class="profile-card"><h2>Мой профиль</h2><p>Настрой, как тебя видят другие пользователи BLOCK.</p><div class="avatar profile-avatar" id="profileAvatar">B</div><input id="avatarFile" type="file" accept="image/*" class="hidden"><button class="secondary" id="chooseAvatar" style="width:100%">Изменить фотографию</button><div class="field"><span>Логин</span><input id="profileUsername" disabled></div><div class="field"><span>Статус</span><input id="profileStatus" maxlength="60" placeholder="Например, Играю в Minecraft"></div><div class="profile-actions"><button class="secondary" id="closeProfile">Закрыть</button><button class="primary" id="saveProfile" style="margin:0">Сохранить статус</button></div><div class="error" id="profileError"></div></div></div><div class="toast" id="toast"></div>
+</div></main></div><div class="profile-modal hidden" id="profileModal"><div class="profile-card"><h2>Мой профиль</h2><p>Настрой, как тебя видят другие пользователи BLOCK.</p><div class="avatar profile-avatar" id="profileAvatar">B</div><input id="avatarFile" type="file" accept="image/*" class="hidden"><button class="secondary" id="chooseAvatar" style="width:100%">Изменить фотографию</button><div class="field"><span>Логин</span><input id="profileUsername" disabled></div><div class="field"><span>Статус</span><input id="profileStatus" maxlength="60" placeholder="Например, Играю в Minecraft"></div><div class="profile-actions"><button class="secondary" id="closeProfile">Закрыть</button><button class="primary" id="saveProfile" style="margin:0">Сохранить статус</button></div><div class="account-danger"><strong>Удаление аккаунта</strong><p>Аккаунт, профиль, переписка и загруженные тобой файлы будут удалены без возможности восстановления.</p><button class="danger-account" id="deleteAccountBtn" type="button">Удалить аккаунт навсегда</button></div><div class="error" id="profileError"></div></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{'use strict';
@@ -84,6 +84,51 @@ function openProfile(){$('profileUsername').value=me.username||'';$('profileStat
 $('profileBtn').addEventListener('click',openProfile);$('closeProfile').addEventListener('click',()=>$('profileModal').classList.add('hidden'));$('chooseAvatar').addEventListener('click',()=>$('avatarFile').click());
 $('avatarFile').addEventListener('change',async()=>{const file=$('avatarFile').files[0];if(!file)return;if(file.size>3*1024*1024){$('profileError').textContent='Фото должно быть меньше 3 МБ.';$('avatarFile').value='';return}try{if(!file.type.startsWith('image/'))throw new Error('Выбери файл изображения.');$('profileError').textContent='Загружаем фотографию…';const path=me.id+'/'+crypto.randomUUID()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const {error}=await db.storage.from('block-avatars').upload(path,file,{upsert:false,contentType:file.type});if(error)throw error;const {data}=db.storage.from('block-avatars').getPublicUrl(path);const {error:updateError}=await db.from('profiles').update({avatar_url:data.publicUrl}).eq('id',me.id);if(updateError)throw updateError;me.avatar_url=data.publicUrl;$('profileAvatar').innerHTML=avatarMarkup(me);toast('Фото профиля обновлено');$('profileError').textContent=''}catch(err){$('profileError').textContent=errorText(err)}finally{$('avatarFile').value=''}});
 $('saveProfile').addEventListener('click',async()=>{const status=$('profileStatus').value.trim().slice(0,60);$('saveProfile').disabled=true;try{const {error}=await db.from('profiles').update({status_text:status}).eq('id',me.id);if(error)throw error;me.status_text=status;$('profileModal').classList.add('hidden');toast('Статус сохранён')}catch(err){$('profileError').textContent=errorText(err)}finally{$('saveProfile').disabled=false}});
+
+async function removeOwnStorageFiles(bucket){
+  let offset=0;
+  while(true){
+    const {data,error}=await db.storage.from(bucket).list(me.id,{limit:1000,offset});
+    if(error)throw error;
+    const names=(data||[]).filter(item=>item.name&&item.id).map(item=>me.id+'/'+item.name);
+    for(let i=0;i<names.length;i+=100){
+      const {error:removeError}=await db.storage.from(bucket).remove(names.slice(i,i+100));
+      if(removeError)throw removeError;
+    }
+    if(!data||data.length<1000)break;
+    offset+=data.length;
+  }
+}
+$('deleteAccountBtn').addEventListener('click',async()=>{
+  if(!me)return;
+  const typed=window.prompt('Это действие нельзя отменить. Введи свой логин для подтверждения: '+me.username);
+  if(typed===null)return;
+  if(typed.trim().toLowerCase()!==String(me.username).toLowerCase()){
+    $('profileError').textContent='Логин не совпадает. Аккаунт не удалён.';
+    return;
+  }
+  const button=$('deleteAccountBtn');
+  button.disabled=true;button.textContent='Удаляем аккаунт…';$('profileError').textContent='Удаляем твои файлы и переписку. Не закрывай страницу.';
+  try{
+    await endVoiceCall(true);
+    if(pollTimer){clearInterval(pollTimer);pollTimer=null}
+    for(const ch of [callChannel,channel,presenceChannel])if(ch)await db.removeChannel(ch);
+    callChannel=channel=presenceChannel=null;
+    await removeOwnStorageFiles('block-files');
+    await removeOwnStorageFiles('block-avatars');
+    const {error}=await db.rpc('block_delete_own_account');
+    if(error)throw error;
+    await db.auth.signOut({scope:'local'});
+    localStorage.removeItem(KEY);localStorage.removeItem(FRIEND);
+    localStorage.removeItem('block_friend_nicks_'+me.id);
+    me=null;friend=null;$('profileModal').classList.add('hidden');show('authScreen');setConnection('аккаунт удалён');
+    $('authError').textContent='Аккаунт и связанные с ним данные удалены.';
+  }catch(err){
+    $('profileError').textContent='Не удалось удалить аккаунт: '+errorText(err);
+  }finally{
+    button.disabled=false;button.textContent='Удалить аккаунт навсегда';
+  }
+});
 $('logoutBtn').addEventListener('click',async()=>{if(pollTimer){clearInterval(pollTimer);pollTimer=null}await endVoiceCall(true);if(callChannel)db.removeChannel(callChannel);callChannel=null;if(channel)db.removeChannel(channel);channel=null;if(presenceChannel)db.removeChannel(presenceChannel);presenceChannel=null;await db.auth.signOut();localStorage.removeItem(KEY);localStorage.removeItem(FRIEND);me=null;friend=null;show('authScreen');setConnection('не подключено')});
 async function boot(){if(!SUPABASE_URL.startsWith('https://')||SUPABASE_ANON_KEY.startsWith('ВСТАВЬТЕ_')){show('authScreen');$('authError').textContent='Нужно добавить URL и публичный ключ проекта Supabase в настройки сайта.';setConnection('не настроено');return}if(!window.supabase){$('authError').textContent='Не удалось загрузить библиотеку Supabase. Обнови страницу.';return}db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data}=await db.auth.getSession();if(!data.session){show('authScreen');setConnection('не подключено');return}me=data.session.user;try{await loadProfile();startPresence();await loadUsers()}catch(err){await db.auth.signOut();show('authScreen');$('authError').textContent='Профиль не найден. Проверь SQL-настройку Supabase: '+errorText(err)}}
 authMode();boot();
