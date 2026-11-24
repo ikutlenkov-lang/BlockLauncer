@@ -222,6 +222,30 @@ button:active,.nav-btn:active,.user-row:active,.note-item:active,.group-item:act
 .no-motion *, .no-motion *::before, .no-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 @media(max-width:650px){.view-enter:not(.hidden){animation-duration:.32s}.tool-card:hover,.setting-card:hover{transform:none}}
 </style>
+<style id="block-tactile-motion">
+/* BLOCK tactile feedback: visible press, ripple, spring and focus */
+@keyframes blockPressPop{0%{transform:scale(.965)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes blockRipple{0%{transform:scale(.05);opacity:.38}100%{transform:scale(1);opacity:0}}
+@keyframes blockClickFlash{0%{filter:brightness(1)}35%{filter:brightness(1.28)}100%{filter:brightness(1)}}
+@keyframes blockNavIn{0%{transform:translateX(-5px);opacity:.65}100%{transform:translateX(0);opacity:1}}
+@keyframes blockCardLift{0%{transform:translateY(0) scale(1)}45%{transform:translateY(-4px) scale(1.012)}100%{transform:translateY(-2px) scale(1.006)}}
+button,.nav-btn,.user-row,.note-item,.group-item,.tool-card,.setting-card{ -webkit-tap-highlight-color:transparent;touch-action:manipulation }
+button:not(:disabled),.nav-btn,.user-row,.note-item,.group-item{position:relative;isolation:isolate;overflow:hidden}
+button:not(:disabled):active,.nav-btn:active,.user-row:active,.note-item:active,.group-item:active{transform:scale(.94)!important;filter:brightness(1.18);box-shadow:inset 0 2px 8px #02081788!important;transition-duration:.07s!important}
+button.block-just-clicked,.nav-btn.block-just-clicked,.user-row.block-just-clicked,.note-item.block-just-clicked,.group-item.block-just-clicked{animation:blockPressPop .34s cubic-bezier(.2,.9,.25,1)}
+.block-ripple{position:absolute;z-index:5;pointer-events:none;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle,#ffffff9c 0%,#a9ceff55 48%,transparent 72%);transform:scale(.05);animation:blockRipple .55s ease-out forwards}
+.nav-btn.active{position:relative;box-shadow:inset 3px 0 #79b3ff,0 5px 18px #0002}
+.nav-btn.active::before{content:"";position:absolute;left:0;top:18%;bottom:18%;width:3px;border-radius:0 5px 5px 0;background:#91c2ff;box-shadow:0 0 14px #70aaff;animation:blockNavIn .22s ease-out}
+.nav-btn.block-just-clicked{background:#29466d!important}
+.tool-card:focus-within,.setting-card:focus-within{border-color:#6da7ff;box-shadow:0 0 0 3px #6da7ff22,0 16px 38px #0003}
+.tool-card:hover,.setting-card:hover{animation:blockCardLift .22s ease-out forwards}
+input,textarea,select{transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+input:focus,textarea:focus,select:focus{border-color:#78adf5!important;box-shadow:0 0 0 3px #6da7ff25,0 0 20px #397de81c}
+.send:active,.primary:active{box-shadow:0 0 0 5px #70aaff28,inset 0 2px 8px #07132355!important}
+button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-offset:3px;box-shadow:0 0 0 5px #6da7ff22}
+@media(hover:none){.tool-card:hover,.setting-card:hover{animation:none;transform:none}.tool-card:active,.setting-card:active{border-color:#6da7ff;box-shadow:0 0 0 3px #6da7ff22}}
+@media(prefers-reduced-motion:reduce){.block-ripple{display:none!important}.nav-btn.active::before{animation:none!important}}
+</style>
 </head>
 <body>
 <div class="shell"><main class="window">
@@ -569,7 +593,43 @@ $('saveCreateGroup').addEventListener('click',async()=>{
 function loadLauncherSettings(){let s={};try{s=JSON.parse(localStorage.getItem('block_launcher_settings_v1')||'{}')}catch{}$('themeSetting').value=s.theme||'default';$('fontSetting').value=String(s.font||13);$('compactSetting').checked=!!s.compact;$('motionSetting').checked=s.motion!==false;$('soundSetting').checked=!!s.sound;$('enterSetting').checked=s.enter!==false;applyLauncherSettings()}
 function applyLauncherSettings(){const s={theme:$('themeSetting').value,font:Number($('fontSetting').value),compact:$('compactSetting').checked,motion:$('motionSetting').checked,sound:$('soundSetting').checked,enter:$('enterSetting').checked};document.body.classList.remove('theme-light','theme-midnight','compact-mode','no-motion');if(s.theme==='light')document.body.classList.add('theme-light');if(s.theme==='midnight')document.body.classList.add('theme-midnight');if(s.compact)document.body.classList.add('compact-mode');if(!s.motion)document.body.classList.add('no-motion');document.documentElement.style.fontSize=s.font+'px';try{localStorage.setItem('block_launcher_settings_v1',JSON.stringify(s))}catch{}}
 ['themeSetting','fontSetting','compactSetting','motionSetting','soundSetting','enterSetting'].forEach(id=>$(id).addEventListener('change',()=>{applyLauncherSettings();$('settingsStatus').textContent='Изменения сохранены.'}));
-$('resetSettings').addEventListener('click',()=>{localStorage.removeItem('block_launcher_settings_v1');loadLauncherSettings();$('settingsStatus').textContent='Настройки сброшены.'});
+$('resetSettings').addEventListener('click',()=>{localStorage.removeItem('block_launcher_settings_v1');
+// BLOCK tactile interaction layer — ripple and spring feedback on real controls
+(function(){
+  if(window.__blockTactileMotionInstalled)return;
+  window.__blockTactileMotionInstalled=true;
+  const selector='button:not(:disabled),.nav-btn,.user-row,.note-item,.group-item';
+  let active=null;
+  document.addEventListener('pointerdown',function(e){
+    const el=e.target.closest(selector);
+    if(!el||el.closest('.no-motion')||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    active=el;
+    const rect=el.getBoundingClientRect();
+    const ripple=document.createElement('span');
+    ripple.className='block-ripple';
+    const size=Math.max(rect.width,rect.height)*1.45;
+    ripple.style.width=size+'px';ripple.style.height=size+'px';
+    ripple.style.left=(e.clientX-rect.left-size/2)+'px';
+    ripple.style.top=(e.clientY-rect.top-size/2)+'px';
+    el.appendChild(ripple);
+    ripple.addEventListener('animationend',()=>ripple.remove(),{once:true});
+    el.classList.remove('block-just-clicked');
+  },{passive:true});
+  ['pointerup','pointercancel','pointerleave'].forEach(type=>document.addEventListener(type,function(e){
+    const el=e.target.closest?.(selector);
+    if(el&&el===active){active=null;}
+  },{passive:true}));
+  document.addEventListener('click',function(e){
+    const el=e.target.closest(selector);
+    if(!el||el.disabled||el.closest('.no-motion')||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    el.classList.remove('block-just-clicked');
+    void el.offsetWidth;
+    el.classList.add('block-just-clicked');
+    el.addEventListener('animationend',()=>el.classList.remove('block-just-clicked'),{once:true});
+  });
+})();
+
+loadLauncherSettings();$('settingsStatus').textContent='Настройки сброшены.'});
 document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.view);if(b.dataset.view==='groupsScreen')loadGroups()}));
 $('sideProfileBtn').addEventListener('click',openProfile);
 let timerRemaining=300,timerInterval=null;
