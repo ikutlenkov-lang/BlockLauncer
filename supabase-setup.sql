@@ -52,6 +52,9 @@ for each row execute procedure public.block_create_profile();
 alter table public.profiles enable row level security;
 alter table public.messages enable row level security;
 
+grant select, insert, update on table public.profiles to authenticated;
+grant select, insert on table public.messages to authenticated;
+
 drop policy if exists "Authenticated users can view profiles" on public.profiles;
 create policy "Authenticated users can view profiles"
 on public.profiles for select to authenticated
@@ -106,10 +109,14 @@ using (
   )
 );
 
-do $$
+do $
 begin
   alter publication supabase_realtime add table public.messages;
-exception
-  when duplicate_object then null;
-  when undefined_object then null;
-end $$;
+exception when duplicate_object then null; when undefined_object then null;
+end $;
+
+do $
+begin
+  alter publication supabase_realtime add table public.profiles;
+exception when duplicate_object then null; when undefined_object then null;
+end $;
