@@ -1,0 +1,9 @@
+{
+  "appId": "com.block.messenger",
+  "appName": "BLOCK Messenger",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#090d17"
+  }
+}
