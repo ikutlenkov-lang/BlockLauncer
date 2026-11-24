@@ -172,6 +172,26 @@
   .composer .send{width:35px;min-width:35px}
 }
 
+
+/* Mobile topbar: keep logout action inside the viewport */
+@media(max-width:650px){
+  .topbar{min-width:0;gap:8px;padding-left:10px;padding-right:10px}
+  .topbar>.logo{width:36px;height:36px;flex:0 0 36px}
+  .topbar>.top-actions{margin-left:auto;min-width:0;flex:0 0 auto;gap:5px}
+  .top-actions .status{display:none}
+  .top-actions #profileBtn{display:none}
+  .top-actions #pushBtn{position:relative;width:34px;height:34px;flex:0 0 34px;padding:0;overflow:hidden;font-size:0}
+  .top-actions #pushBtn::after{content:"🔔";position:absolute;inset:0;display:grid;place-items:center;font-size:16px}
+  .top-actions #logoutBtn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;white-space:nowrap;min-width:58px;padding:8px 10px;font-size:11px}
+}
+@media(max-width:390px){
+  .topbar{gap:6px;padding-left:8px;padding-right:8px}
+  .topbar>.logo{width:32px;height:32px;flex-basis:32px}
+  .brand{font-size:16px;letter-spacing:1px}
+  .top-actions #logoutBtn{min-width:54px;padding:7px 8px;font-size:10px}
+  .top-actions #pushBtn{width:30px;height:30px;flex-basis:30px}
+}
+
 </style>
 </head>
 <body>
