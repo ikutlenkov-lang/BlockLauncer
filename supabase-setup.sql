@@ -108,3 +108,44 @@ using (
     )
   )
 );
+
+
+-- Self-service account deletion. The caller can delete only their own Auth user.
+create or replace function public.block_delete_own_account()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  caller_id uuid;
+begin
+  caller_id := auth.uid();
+  if caller_id is null then
+    raise exception 'Authentication required';
+  end if;
+  delete from auth.users where id = caller_id;
+  if not found then
+    raise exception 'Account not found';
+  end if;
+end;
+$$;
+
+revoke all on function public.block_delete_own_account() from public;
+grant execute on function public.block_delete_own_account() to authenticated;
+
+-- Let each user list and remove only files in their own UUID folder.
+drop policy if exists "Users can view their own avatars" on storage.objects;
+create policy "Users can view their own avatars"
+on storage.objects for select to authenticated
+using (bucket_id = 'block-avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "Users can delete their own avatars" on storage.objects;
+create policy "Users can delete their own avatars"
+on storage.objects for delete to authenticated
+using (bucket_id = 'block-avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "Users can delete their own chat files" on storage.objects;
+create policy "Users can delete their own chat files"
+on storage.objects for delete to authenticated
+using (bucket_id = 'block-files' and (storage.foldername(name))[1] = (select auth.uid())::text);
