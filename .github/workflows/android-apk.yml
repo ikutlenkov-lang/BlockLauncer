@@ -36,6 +36,26 @@ jobs:
       - name: Generate Android project
         run: npx cap add android
 
+      - name: Add microphone permissions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text(encoding="utf-8")
+          permissions = [
+              '    <uses-permission android:name="android.permission.RECORD_AUDIO" />',
+              '    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />',
+          ]
+          missing = [p for p in permissions if p.split('android:name="')[1].split('"')[0] not in text]
+          if missing:
+              marker = "    <application"
+              if marker not in text:
+                  raise SystemExit("Could not find <application> in AndroidManifest.xml")
+              text = text.replace(marker, "\n".join(missing) + "\n" + marker, 1)
+              manifest.write_text(text, encoding="utf-8")
+          print("Microphone permissions configured.")
+          PY
+
       - name: Sync Capacitor
         run: npx cap sync android
 
