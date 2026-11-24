@@ -20,7 +20,7 @@
 </head>
 <body>
 <div class="shell"><main class="window">
-<header class="topbar"><div class="logo">B</div><div><div class="brand">BLO<span>CK</span></div><div class="tagline">личный мессенджер</div></div><div class="top-actions"><button class="ghost hidden" id="pushBtn" type="button" title="Push-уведомления">🔔 Уведомления</button><div class="status"><span class="dot"></span><span id="connectionText">подключение</span></div><button class="ghost hidden" id="profileBtn">Профиль</button><button class="ghost hidden" id="logoutBtn">Выйти</button></div></header>
+<header class="topbar"><div class="logo">B</div><div><div class="brand">BLO<span>CK</span></div><div class="tagline">личный мессенджер</div></div><div class="top-actions"><button class="ghost hidden" id="pushBtn" type="button" title="Включить push-уведомления">🔔 Включить уведомления</button><div class="status"><span class="dot"></span><span id="connectionText">подключение</span></div><button class="ghost hidden" id="profileBtn">Профиль</button><button class="ghost hidden" id="logoutBtn">Выйти</button></div></header>
 <div class="content">
 <section class="auth-wrap" id="authScreen"><div class="auth-card"><div class="auth-mark">B</div><h1 id="authTitle">Войти в BLOCK</h1><p>Создай логин и пароль — почта не понадобится. Логин: 3–24 символа, латинские буквы, цифры или _.</p><form id="authForm"><label class="field" id="emailField"><span>Email</span><input id="email" type="email" autocomplete="email" placeholder="name@example.com"></label><label class="field" id="usernameField"><span>Имя пользователя</span><input id="username" autocomplete="username" minlength="3" maxlength="40" required placeholder="Например, player_01"></label><label class="field"><span>Пароль</span><input id="password" type="password" autocomplete="current-password" minlength="8" maxlength="100" required placeholder="Не менее 8 символов"></label><button class="primary" id="authSubmit" type="submit">Войти</button></form><div class="error" id="authError"></div><div class="switch"><span id="switchText">Нет аккаунта?</span><button id="switchMode" type="button">Создать</button></div></div></section>
 <section class="pick-wrap hidden" id="pickScreen"><div class="pick-card"><h2>Выбери друга</h2><p>В BLOCK будет один личный чат. Выбери человека, с которым хочешь общаться.</p><div class="users" id="usersList"><div class="empty">Загружаем пользователей…</div></div><div class="error" id="usersError"></div></div></section>
@@ -47,23 +47,79 @@ const VAPID_PUBLIC_KEY='BEosifvQLV3sjui_CLjlNEL-u8uHtSbj6cQAnMsQiSm34Hfk8GWApylM
 function base64UrlToBytes(value){const padding='='.repeat((4-value.length%4)%4);const base=(value+padding).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(base);return Uint8Array.from(raw,c=>c.charCodeAt(0))}
 async function enablePushNotifications(){
   const button=$('pushBtn');
-  if(!me||!db)return;
-  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){toast('Этот браузер не поддерживает Push-уведомления');return}
-  button.disabled=true;button.textContent='Подключаем…';
+  if(!me||!db){toast('Сначала войди в BLOCK, затем включи уведомления');return}
+  if(!window.isSecureContext){toast('Уведомления работают только на защищённом HTTPS-сайте');return}
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){
+    toast('Этот браузер не поддерживает Web Push. Попробуй Chrome на Android.');
+    return;
+  }
+
+  const originalText='🔔 Включить уведомления';
+  button.disabled=true;
+  button.textContent='Запрашиваем доступ…';
+  let enabled=false;
+
   try{
-    const permission=await Notification.requestPermission();
-    if(permission!=='granted'){toast(permission==='denied'?'Разреши уведомления в настройках браузера':'Разрешение не выдано');return}
-    const registration=await navigator.serviceWorker.register('./sw.js');
+    // Запрашиваем разрешение сразу из обработчика пользовательского нажатия.
+    let permission=Notification.permission;
+    if(permission==='default'){
+      permission=await Notification.requestPermission();
+    }
+
+    if(permission!=='granted'){
+      if(permission==='denied'){
+        button.textContent='Уведомления заблокированы';
+        toast('Доступ заблокирован в браузере. Разреши уведомления для сайта в настройках браузера.');
+      }else{
+        button.textContent=originalText;
+        toast('Браузер не выдал разрешение. Нажми кнопку ещё раз.');
+      }
+      return;
+    }
+
+    button.textContent='Настраиваем…';
+    const baseUrl=new URL('./',document.baseURI);
+    const registration=await navigator.serviceWorker.register(new URL('sw.js',baseUrl),{
+      scope:baseUrl.pathname,
+      updateViaCache:'none'
+    });
     await navigator.serviceWorker.ready;
+
     let subscription=await registration.pushManager.getSubscription();
-    if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64UrlToBytes(VAPID_PUBLIC_KEY)});
+    if(!subscription){
+      subscription=await registration.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:base64UrlToBytes(VAPID_PUBLIC_KEY)
+      });
+    }
+
     const json=subscription.toJSON();
-    if(!json.endpoint||!json.keys?.p256dh||!json.keys?.auth)throw new Error('Браузер не вернул ключи подписки');
-    const {error}=await db.from('push_subscriptions').upsert({user_id:me.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth},{onConflict:'user_id,endpoint'});
+    if(!json.endpoint||!json.keys?.p256dh||!json.keys?.auth){
+      throw new Error('Браузер не вернул данные push-подписки');
+    }
+
+    const {error}=await db.from('push_subscriptions').upsert({
+      user_id:me.id,
+      endpoint:json.endpoint,
+      p256dh:json.keys.p256dh,
+      auth:json.keys.auth
+    },{onConflict:'user_id,endpoint'});
     if(error)throw error;
-    button.textContent='🔔 Уведомления включены';toast('Уведомления BLOCK включены на этом устройстве');
-  }catch(error){toast('Не удалось включить уведомления: '+(error.message||error));button.textContent='🔔 Уведомления'}
-  finally{button.disabled=false}
+
+    enabled=true;
+    button.textContent='🔔 Уведомления включены';
+    toast('BLOCK подключён к уведомлениям на этом устройстве');
+  }catch(error){
+    console.error('[BLOCK Push]',error);
+    button.textContent=originalText;
+    const detail=error?.message||String(error);
+    toast('Не удалось подключить уведомления: '+detail);
+  }finally{
+    button.disabled=false;
+    if(!enabled&&Notification.permission==='granted'&&button.textContent==='Настраиваем…'){
+      button.textContent=originalText;
+    }
+  }
 }
 $('pushBtn').addEventListener('click',enablePushNotifications);
 function authMode(){$('authTitle').textContent=registerMode?'Создать аккаунт':'Войти в BLOCK';$('authSubmit').textContent=registerMode?'Зарегистрироваться':'Войти';$('switchText').textContent=registerMode?'Уже есть аккаунт?':'Нет аккаунта?';$('switchMode').textContent=registerMode?'Войти':'Создать';$('password').autocomplete=registerMode?'new-password':'current-password';$('emailField').classList.add('hidden');$('email').required=false;$('usernameField').classList.remove('hidden');$('username').required=true;$('username').autocomplete='username';$('username').placeholder='Например, player_01'}
