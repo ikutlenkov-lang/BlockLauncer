@@ -193,6 +193,35 @@
 }
 
 </style>
+<style id="block-motion-system">
+/* BLOCK motion system — smooth, lightweight and mobile-safe */
+@keyframes blockViewIn{from{opacity:0;transform:translate3d(0,14px,0) scale(.992);filter:blur(5px)}to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}}
+@keyframes blockMessageIn{from{opacity:0;transform:translate3d(0,12px,0) scale(.975)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@keyframes blockModalIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes blockToastIn{from{opacity:0;transform:translate(-50%,12px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes blockGlow{0%,100%{box-shadow:0 8px 24px #397de833}50%{box-shadow:0 10px 32px #397de866}}
+@keyframes blockSoftPulse{0%,100%{opacity:.72}50%{opacity:1}}
+.view-enter:not(.hidden){animation:blockViewIn .42s cubic-bezier(.2,.8,.2,1) both;will-change:transform,opacity}
+.bubble,.group-message{animation:blockMessageIn .28s cubic-bezier(.2,.75,.25,1) both}
+.auth-card,.pick-card,.tool-card,.setting-card,.notes-list-panel,.notes-editor-panel{transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .25s ease,box-shadow .28s ease}
+.tool-card:hover,.setting-card:hover{transform:translateY(-3px);border-color:#45658e;box-shadow:0 14px 35px #0003}
+button,.nav-btn,.user-row,.note-item,.group-item,.ghost,.primary,.secondary,.send,.tool-actions button{transition:transform .18s ease,background-color .2s ease,border-color .2s ease,box-shadow .2s ease,filter .2s ease}
+button:active,.nav-btn:active,.user-row:active,.note-item:active,.group-item:active{transform:scale(.97)}
+.primary:hover,.send:hover,.notes-new:hover{filter:brightness(1.12);box-shadow:0 9px 27px #397de855}
+.logo,.auth-mark{animation:blockGlow 4s ease-in-out infinite}
+.nav-btn.active{box-shadow:inset 3px 0 #79b3ff,0 5px 18px #0002}
+.toast.show{animation:blockToastIn .24s cubic-bezier(.2,.8,.2,1) both}
+.profile-modal:not(.hidden),.avatar-editor:not(.hidden),#groupCreateModal:not(.hidden){animation:blockModalIn .25s ease both}
+.chat-head,.topbar,.composer-area,.group-chat-head{transition:background-color .25s ease,border-color .25s ease}
+.pinned-bar:not(.hidden){animation:blockViewIn .28s ease both}
+.online-dot,.dot{animation:blockSoftPulse 2.2s ease-in-out infinite}
+.avatar,.friend-view-avatar,.profile-avatar{transition:transform .25s cubic-bezier(.2,.8,.2,1),filter .25s ease}
+.friend-profile-trigger:hover,.avatar:hover{transform:scale(1.045);filter:brightness(1.08)}
+.messages,.group-chat-messages,.workspace-panel{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.no-motion *, .no-motion *::before, .no-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(max-width:650px){.view-enter:not(.hidden){animation-duration:.32s}.tool-card:hover,.setting-card:hover{transform:none}}
+</style>
 </head>
 <body>
 <div class="shell"><main class="window">
@@ -225,7 +254,7 @@ let db=null,me=null,friend=null,channel=null,presenceChannel=null,callChannel=nu
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const toast=t=>{const el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)};
 let currentScreen='authScreen';
-function show(which){currentScreen=which;['authScreen','pickScreen','chatScreen','groupsScreen','notesScreen','toolsScreen','settingsScreen'].forEach(id=>$(id).classList.toggle('hidden',id!==which));const logged=which!=='authScreen';$('sidebar').classList.toggle('hidden',!logged);$('logoutBtn').classList.toggle('hidden',!logged);$('profileBtn').classList.toggle('hidden',!logged);$('pushBtn').classList.toggle('hidden',!logged);document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===which));}
+function show(which){currentScreen=which;['authScreen','pickScreen','chatScreen','groupsScreen','notesScreen','toolsScreen','settingsScreen'].forEach(id=>{const el=$(id);el.classList.toggle('hidden',id!==which);if(id===which){el.classList.remove('view-enter');void el.offsetWidth;el.classList.add('view-enter')}});const logged=which!=='authScreen';$('sidebar').classList.toggle('hidden',!logged);$('logoutBtn').classList.toggle('hidden',!logged);$('profileBtn').classList.toggle('hidden',!logged);$('pushBtn').classList.toggle('hidden',!logged);document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===which));}
 function avatarMarkup(user){const initial=esc((user?.username||'?').slice(0,1).toUpperCase());return user?.avatar_url?'<img src="'+esc(user.avatar_url)+'" alt="">':initial}
 function nickStore(){try{return JSON.parse(localStorage.getItem('block_friend_nicks_'+me.id)||'{}')}catch{return {}}}
 function friendDisplayName(user){return nickStore()[String(user.id)]||user.username}
@@ -501,7 +530,7 @@ async function renderGroupMessage(m){
   if(!m||String(m.group_id)!==String(activeGroup?.id)||groupMessageIds.has(String(m.id)))return;
   groupMessageIds.add(String(m.id));
   if(!groupProfiles[m.sender_id]){const {data}=await db.from('profiles').select('id,username').eq('id',m.sender_id).maybeSingle();groupProfiles[m.sender_id]=data?.username||'Участник'}
-  const el=document.createElement('div');el.className='group-message'+(String(m.sender_id)===String(me.id)?' mine':'');
+  const el=document.createElement('div');el.className='group-message'+(String(m.sender_id)===String(me.id)?' mine':'');el.style.animationDelay='0ms';
   const d=new Date(m.created_at),time=isNaN(d.getTime())?'':d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
   el.innerHTML='<small>'+esc(groupProfiles[m.sender_id])+' · '+time+'</small>'+esc(m.content||'');
   $('groupMessages').appendChild(el);$('groupMessages').scrollTop=$('groupMessages').scrollHeight;
