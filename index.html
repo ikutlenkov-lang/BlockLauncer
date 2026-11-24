@@ -47,31 +47,29 @@ const VAPID_PUBLIC_KEY='BEosifvQLV3sjui_CLjlNEL-u8uHtSbj6cQAnMsQiSm34Hfk8GWApylM
 function base64UrlToBytes(value){const padding='='.repeat((4-value.length%4)%4);const base=(value+padding).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(base);return Uint8Array.from(raw,c=>c.charCodeAt(0))}
 async function enablePushNotifications(){
   const button=$('pushBtn');
-  const originalText='🔔 Включить уведомления';
-  // Отображаем реакцию до любой асинхронной операции: это также проверяет,
-  // что нажатие действительно дошло до обработчика.
   button.disabled=true;
   button.textContent='Проверяем браузер…';
   try{
-    // Даём браузеру отрисовать статус до выполнения проверок и системных запросов.
-    await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+    // Все проверки до первого await выполняются прямо в обработчике нажатия.
     if(!me||!db)throw new Error('Сессия BLOCK не найдена. Выйди из аккаунта и войди снова.');
     if(!window.isSecureContext)throw new Error('Сайт открыт не через HTTPS. Открой официальную HTTPS-ссылку BLOCK.');
-    if(!('serviceWorker' in navigator))throw new Error('В этом браузере нет поддержки Service Worker. Проверь Chrome.');
-    if(!('PushManager' in window))throw new Error('Этот браузер не поддерживает Push API. Попробуй Google Chrome.');
-    if(!('Notification' in window))throw new Error('Браузер не предоставляет API уведомлений. Попробуй Google Chrome.');
+    if(!('serviceWorker' in navigator))throw new Error('В этом браузере нет поддержки Service Worker. Попробуй Chrome.');
+    if(!('PushManager' in window))throw new Error('Этот браузер не поддерживает Push API. Попробуй Chrome.');
+    if(!('Notification' in window))throw new Error('Браузер не предоставляет API уведомлений. Попробуй Chrome.');
 
-    button.textContent='Запрашиваем разрешение…';
-    await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+    // Важно для мобильных браузеров: запрос разрешения запускается без
+    // предварительных await/requestAnimationFrame, пока действует жест пользователя.
     let permission=Notification.permission;
-    if(permission==='default')permission=await Notification.requestPermission();
+    if(permission==='default'){
+      button.textContent='Запрашиваем разрешение…';
+      permission=await Notification.requestPermission();
+    }
     if(permission!=='granted'){
-      if(permission==='denied')throw new Error('Разрешение ранее заблокировано. Открой настройки сайта в Chrome → Уведомления и разреши их.');
+      if(permission==='denied')throw new Error('Разрешение ранее заблокировано. Открой настройки сайта в браузере → Уведомления и разреши их.');
       throw new Error('Браузер не выдал разрешение на уведомления.');
     }
 
     button.textContent='Регистрируем уведомления…';
-    await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
     const baseUrl=new URL('./',document.baseURI);
     const registration=await navigator.serviceWorker.register(new URL('sw.js',baseUrl),{
       scope:baseUrl.pathname,
