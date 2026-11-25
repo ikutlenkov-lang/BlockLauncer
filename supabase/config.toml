@@ -1,2 +1,2 @@
-[functions.send-push]
+[functions.smart-processor]
 verify_jwt = false
