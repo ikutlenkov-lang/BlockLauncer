@@ -357,7 +357,7 @@ async function enablePushNotifications(){
   }
 }
 $('pushBtn').addEventListener('click',()=>{enablePushNotifications().catch(error=>{console.error('[BLOCK Push fatal]',error);toast(error?.message||String(error))})});
-$('pushSettingsBtn').addEventListener('click',async()=>{const b=$('pushSettingsBtn');b.disabled=true;b.textContent='Проверяем…';try{await enablePushNotifications()}finally{b.disabled=false;b.textContent=Notification.permission==='granted'?'🔔 Уведомления разрешены':'🔔 Повторить подключение'}});
+$('pushSettingsBtn').addEventListener('click',async()=>{const b=$('pushSettingsBtn');b.disabled=true;b.textContent='Проверяем…';try{await enablePushNotifications()}finally{b.disabled=false;b.textContent=('Notification' in window&&Notification.permission==='granted')?'🔔 Уведомления разрешены':'🔔 Повторить подключение'}});
 function authMode(){$('authTitle').textContent=registerMode?'Создать аккаунт':'Войти в BLOCK';$('authSubmit').textContent=registerMode?'Зарегистрироваться':'Войти';$('switchText').textContent=registerMode?'Уже есть аккаунт?':'Нет аккаунта?';$('switchMode').textContent=registerMode?'Войти':'Создать';$('password').autocomplete=registerMode?'new-password':'current-password';$('emailField').classList.add('hidden');$('email').required=false;$('usernameField').classList.remove('hidden');$('username').required=true;$('username').autocomplete='username';$('username').placeholder='Например, player_01'}
 function errorText(e){if(e?.message?.includes('Invalid login'))return 'Неверный логин или пароль.';if(e?.message?.includes('User already registered'))return 'Такой логин уже занят. Выбери другой.';if(e?.message?.includes('Email not confirmed'))return 'В Supabase нужно отключить подтверждение email: Authentication → Providers → Email → Confirm email.';if(e?.message?.includes('duplicate key')||e?.code==='23505')return 'Такой логин уже занят. Выбери другой.';return e?.message||'Произошла ошибка. Попробуй ещё раз.'}
 async function loadProfile(){const {data,error}=await db.from('profiles').select('id,username,avatar_url,status_text').eq('id',me.id).single();if(error)throw error;me=data}
@@ -594,7 +594,6 @@ $('saveCreateGroup').addEventListener('click',async()=>{
 function loadLauncherSettings(){let s={};try{s=JSON.parse(localStorage.getItem('block_launcher_settings_v1')||'{}')}catch{}$('themeSetting').value=s.theme||'default';$('fontSetting').value=String(s.font||13);$('compactSetting').checked=!!s.compact;$('motionSetting').checked=s.motion!==false;$('soundSetting').checked=!!s.sound;$('enterSetting').checked=s.enter!==false;applyLauncherSettings()}
 function applyLauncherSettings(){const s={theme:$('themeSetting').value,font:Number($('fontSetting').value),compact:$('compactSetting').checked,motion:$('motionSetting').checked,sound:$('soundSetting').checked,enter:$('enterSetting').checked};document.body.classList.remove('theme-light','theme-midnight','compact-mode','no-motion');if(s.theme==='light')document.body.classList.add('theme-light');if(s.theme==='midnight')document.body.classList.add('theme-midnight');if(s.compact)document.body.classList.add('compact-mode');if(!s.motion)document.body.classList.add('no-motion');document.documentElement.style.fontSize=s.font+'px';try{localStorage.setItem('block_launcher_settings_v1',JSON.stringify(s))}catch{}}
 ['themeSetting','fontSetting','compactSetting','motionSetting','soundSetting','enterSetting'].forEach(id=>$(id).addEventListener('change',()=>{applyLauncherSettings();$('settingsStatus').textContent='Изменения сохранены.'}));
-$('resetSettings').addEventListener('click',()=>{localStorage.removeItem('block_launcher_settings_v1');
 // BLOCK tactile interaction layer — ripple and spring feedback on real controls
 (function(){
   if(window.__blockTactileMotionInstalled)return;
@@ -629,6 +628,9 @@ $('resetSettings').addEventListener('click',()=>{localStorage.removeItem('block_
     el.addEventListener('animationend',()=>el.classList.remove('block-just-clicked'),{once:true});
   });
 })();
+
+$('resetSettings').addEventListener('click',()=>{localStorage.removeItem('block_launcher_settings_v1');
+
 
 loadLauncherSettings();$('settingsStatus').textContent='Настройки сброшены.'});
 document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.view);if(b.dataset.view==='groupsScreen')loadGroups()}));
