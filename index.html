@@ -286,7 +286,7 @@ function renderFriendHeader(){renderPinnedBar();if(!friend)return;$('friendName'
 function openFriendProfile(){if(!friend)return;$('friendViewAvatar').innerHTML=avatarMarkup(friend);$('friendViewName').textContent=friend.username||'Пользователь BLOCK';$('friendProfileModal').classList.remove('hidden')}
 function setConnection(s){$('connectionText').textContent=s}
 
-const VAPID_PUBLIC_KEY='BNM8P0WNqNNGSH9-Ds_sxhKGyDGRUjPo0kMcg0dYTZPN5tvqVCt-aoHY_YkhHDGNJsqJk291eSeFhLi-gjcV8qY';
+const VAPID_PUBLIC_KEY='BFibE0K2sswG_jmXuijMjNmu91taRMKybs3d_CyqmmUZtr907uvfr786dnTqed3gygtkxyz22m1XQeSE5tOz0QE';
 function base64UrlToBytes(value){const padding='='.repeat((4-value.length%4)%4);const base=(value+padding).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(base);return Uint8Array.from(raw,c=>c.charCodeAt(0))}
 async function enablePushNotifications(){
   const button=$('pushBtn');
@@ -329,10 +329,22 @@ async function enablePushNotifications(){
 
     report('Service Worker готов. Проверяем Push-подписку…');
     let subscription=await registration.pushManager.getSubscription();
+    const expectedApplicationKey=base64UrlToBytes(VAPID_PUBLIC_KEY);
+    if(subscription){
+      const currentApplicationKey=subscription.options?.applicationServerKey;
+      const sameKey=!!currentApplicationKey &&
+        currentApplicationKey.byteLength===expectedApplicationKey.byteLength &&
+        expectedApplicationKey.every((byte,index)=>byte===new Uint8Array(currentApplicationKey)[index]);
+      if(!sameKey){
+        report('Обнаружена старая push-подписка. Обновляем её под новый VAPID-ключ…');
+        await subscription.unsubscribe();
+        subscription=null;
+      }
+    }
     if(!subscription){
       subscription=await registration.pushManager.subscribe({
         userVisibleOnly:true,
-        applicationServerKey:base64UrlToBytes(VAPID_PUBLIC_KEY)
+        applicationServerKey:expectedApplicationKey
       });
     }
     const json=subscription.toJSON();
