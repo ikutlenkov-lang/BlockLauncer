@@ -24,17 +24,27 @@ Deno.serve(async (req) => {
 
   if (!supabaseUrl || !serviceKey || !adminPassword) {
     console.error("BLOCK admin: required secrets are not configured");
-    return json({ error: "Административная функция ещё не настроена на сервере." }, 500);
+    return json({ error: "Административная функция ещё не настроена на сервере. Проверь BLOCK_URL, BLOCK_SERVICE_ROLE_KEY и BLOCK_ADMIN_PASSWORD." }, 500);
   }
-  if (!authorization.startsWith("Bearer ")) return json({ error: "Требуется войти в BLOCK." }, 401);
 
-  // The caller must be a real signed-in BLOCK user as well as know the admin password.
+  if (!authorization.startsWith("Bearer ")) {
+    return json({ error: "Требуется войти в BLOCK." }, 401);
+  }
+
+  // Pass the user's JWT explicitly. With persistSession:false, getUser() without
+  // a token has no local session to inspect, even if a global header is present.
+  const accessToken = authorization.slice("Bearer ".length).trim();
+  if (!accessToken) return json({ error: "Сессия BLOCK не найдена. Войди заново." }, 401);
+
   const userClient = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
-    global: { headers: { Authorization: authorization } },
   });
-  const { data: userData, error: userError } = await userClient.auth.getUser();
-  if (userError || !userData.user) return json({ error: "Сессия недействительна. Войди в BLOCK заново." }, 401);
+  const { data: userData, error: userError } = await userClient.auth.getUser(accessToken);
+
+  if (userError || !userData.user) {
+    console.error("BLOCK admin: user token validation failed", userError?.message ?? "No user");
+    return json({ error: "Сессия недействительна. Войди в BLOCK заново." }, 401);
+  }
 
   let body: { action?: string; password?: string; user_id?: string };
   try {
@@ -42,6 +52,7 @@ Deno.serve(async (req) => {
   } catch {
     return json({ error: "Некорректный запрос." }, 400);
   }
+
   if (typeof body.password !== "string" || body.password !== adminPassword) {
     return json({ error: "Неверный админ-пароль." }, 403);
   }
@@ -55,23 +66,28 @@ Deno.serve(async (req) => {
       .from("profiles")
       .select("id, username")
       .order("username", { ascending: true });
+
     if (error) {
       console.error("BLOCK admin: profile listing failed", error.message);
       return json({ error: "Не удалось получить список аккаунтов." }, 500);
     }
+
     return json({ users: data ?? [] });
   }
 
   if (body.action === "delete") {
     const targetId = body.user_id;
     if (typeof targetId !== "string" || !targetId) return json({ error: "Не выбран аккаунт." }, 400);
-    if (targetId === userData.user.id) return json({ error: "Нельзя удалить аккаунт, с которого открыта админ-панель." }, 400);
+    if (targetId === userData.user.id) {
+      return json({ error: "Нельзя удалить аккаунт, с которого открыта админ-панель." }, 400);
+    }
 
     const { error } = await admin.auth.admin.deleteUser(targetId, false);
     if (error) {
       console.error("BLOCK admin: account deletion failed", error.message);
       return json({ error: "Не удалось удалить аккаунт. Проверь, существует ли он." }, 500);
     }
+
     return json({ ok: true, deleted_user_id: targetId });
   }
 
