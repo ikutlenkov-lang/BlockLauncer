@@ -323,8 +323,8 @@ const $=id=>document.getElementById(id), KEY='block_supabase_session_v1', FRIEND
 let db=null,me=null,friend=null,channel=null,presenceChannel=null,callChannel=null,registerMode=false,historyIds=new Set(),sending=false,pollTimer=null,pc=null,localStream=null,activeCallId=null,incomingCallId=null,pendingIce=[],callBusy=false,callChannelReady=Promise.resolve(),voiceRecorder=null,voiceChunks=[],voiceBlob=null,voicePreviewUrl=null,voiceTimer=null,voiceStartedAt=0,voiceDuration=0,discardVoiceRecording=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const toast=t=>{const el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)};
-let currentScreen='authScreen';
-function show(which){currentScreen=which;['authScreen','pickScreen','chatScreen','groupsScreen','gamesScreen','notesScreen','toolsScreen','settingsScreen'].forEach(id=>{const el=$(id);el.classList.toggle('hidden',id!==which);if(id===which){el.classList.remove('view-enter');void el.offsetWidth;el.classList.add('view-enter')}});const logged=which!=='authScreen';$('sidebar').classList.toggle('hidden',!logged);$('logoutBtn').classList.toggle('hidden',!logged);$('profileBtn').classList.toggle('hidden',!logged);$('pushBtn').classList.toggle('hidden',!logged);document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===which));}
+let currentScreen='authScreen',blockAdminPassword=null;
+function show(which){if(which!=='settingsScreen'&&blockAdminPassword!==null){blockAdminPassword=null;$('adminPanel')?.classList.add('hidden');$('adminLoginCard')?.classList.remove('hidden');$('adminPasswordInput')&&($('adminPasswordInput').value='');$('adminError')&&($('adminError').textContent='');$('adminPanelError')&&($('adminPanelError').textContent='')}currentScreen=which;['authScreen','pickScreen','chatScreen','groupsScreen','gamesScreen','notesScreen','toolsScreen','settingsScreen'].forEach(id=>{const el=$(id);el.classList.toggle('hidden',id!==which);if(id===which){el.classList.remove('view-enter');void el.offsetWidth;el.classList.add('view-enter')}});const logged=which!=='authScreen';$('sidebar').classList.toggle('hidden',!logged);$('logoutBtn').classList.toggle('hidden',!logged);$('profileBtn').classList.toggle('hidden',!logged);$('pushBtn').classList.toggle('hidden',!logged);document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===which));}
 function avatarMarkup(user){const initial=esc((user?.username||'?').slice(0,1).toUpperCase());return user?.avatar_url?'<img src="'+esc(user.avatar_url)+'" alt="">':initial}
 function nickStore(){try{return JSON.parse(localStorage.getItem('block_friend_nicks_'+me.id)||'{}')}catch{return {}}}
 function friendDisplayName(user){return nickStore()[String(user.id)]||user.username}
@@ -798,7 +798,6 @@ $('saveCreateGroup').addEventListener('click',async()=>{
   finally{b.disabled=false}
 });
 
-let blockAdminPassword=null;
 async function callBlockAdmin(action,userId){
   const {data:{session}}=await db.auth.getSession();
   if(!session?.access_token)throw new Error('Сессия истекла. Войди в BLOCK заново.');
