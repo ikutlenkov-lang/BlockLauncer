@@ -1,2 +1,5 @@
 [functions.smart-processor]
 verify_jwt = false
+
+[functions.block-admin]
+verify_jwt = true
