@@ -515,7 +515,7 @@ async function handleBattleshipEvent(p){
     bsGame.status='playing';bsGame.turn=String(p.turn);renderBattleship();$('bsLobbyStatus').textContent='Партия началась!';return;
   }
   if(p.type==='shot'&&bsGame?.id===p.gameId&&bsGame.status==='playing'){
-    if(bsGame.turn!==String(me.id))return;
+    if(bsGame.turn!==String(p.from))return;
     const x=Number(p.x),y=Number(p.y);if(!Number.isInteger(x)||!Number.isInteger(y)||x<0||x>9||y<0||y>9)return;
     const key=bsCellKey(x,y);if(bsGame.incomingShots[key])return;
     const ship=bsFleetCell(x,y),hit=!!ship;
@@ -523,7 +523,7 @@ async function handleBattleshipEvent(p){
     const sunk=!!ship&&ship.cells.every(cell=>bsGame.incomingShots[bsCellKey(cell.x,cell.y)]?.hit);
     const win=bsGame.myShips.every(s=>s.cells.every(cell=>bsGame.incomingShots[bsCellKey(cell.x,cell.y)]?.hit));
     if(win){bsGame.status='ended';bsGame.result='loss'}
-    bsGame.turn=String(p.from);
+    bsGame.turn=String(me.id);
     await sendBattleship('shot_result',p.from,{gameId:bsGame.id,x,y,hit,sunk,win});
     renderBattleship();return;
   }
