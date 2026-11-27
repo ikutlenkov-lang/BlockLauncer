@@ -47,6 +47,14 @@
 .setting-row small{display:block;color:var(--muted);font-size:11px;margin-top:4px;font-weight:400}
 .setting-row select{width:min(220px,45%);background:#0a1220;border:1px solid #2b3b54;color:#f3f6fc;padding:9px;border-radius:10px}
 .setting-row input[type=checkbox]{width:19px;height:19px;accent-color:#6da7ff}
+.admin-settings-card .field{margin:12px 0}
+.admin-user-row{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #2b3d58;border-radius:12px;background:#111d30}
+.admin-user-meta{flex:1;min-width:0;overflow-wrap:anywhere}
+.admin-user-meta strong{display:block;font-size:13px}
+.admin-user-meta small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.admin-delete-btn{padding:9px 10px;border:1px solid #a84c5c;border-radius:10px;background:#6b2635;color:#fff;font-size:11px;font-weight:800;flex:none}
+.admin-delete-btn:disabled{opacity:.55;cursor:wait}
+
 .theme-light{--bg:#e9eef7;--panel:#fff;--panel2:#e7edf7;--line:#c8d3e4;--text:#182235;--muted:#64748b;background:#e9eef7;color:#182235}
 .theme-light .window,.theme-light .sidebar,.theme-light .workspace-panel,.theme-light .tool-card,.theme-light .setting-card{background:#f7f9fd;color:#182235}
 .theme-light .nav-btn{color:#41516b}.theme-light .nav-btn.active{background:#dce8fa;color:#13233c}
@@ -273,6 +281,21 @@ button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-of
 <div class="setting-card"><h3>🎨 Внешний вид</h3><div class="setting-row"><div><label for="themeSetting">Тема оформления</label><small>Выбери общий стиль интерфейса</small></div><select id="themeSetting"><option value="default">BLOCK Blue</option><option value="midnight">Midnight</option><option value="light">Светлая</option></select></div><div class="setting-row"><div><label for="fontSetting">Размер текста</label><small>Увеличивает текст интерфейса</small></div><select id="fontSetting"><option value="13">Обычный</option><option value="14">Крупнее</option><option value="15">Большой</option></select></div><div class="setting-row"><div><label for="compactSetting">Компактный чат</label><small>Уменьшает отступы между сообщениями</small></div><input id="compactSetting" type="checkbox"></div><div class="setting-row"><div><label for="motionSetting">Анимации интерфейса</label><small>Можно отключить плавные переходы</small></div><input id="motionSetting" type="checkbox" checked></div></div>
 <div class="setting-card"><h3>🔔 Уведомления и удобство</h3><div class="setting-row"><div><label for="soundSetting">Звук отправки</label><small>Короткий сигнал после отправки сообщения</small></div><input id="soundSetting" type="checkbox"></div><div class="setting-row"><div><label for="enterSetting">Отправка по Enter</label><small>Если выключить, Enter будет переносить строку</small></div><input id="enterSetting" type="checkbox" checked></div><div class="setting-row"><div><div><label>Push-уведомления</label><small>Нажми кнопку, чтобы браузер запросил разрешение. Если раньше выбрано «Запретить», разреши уведомления в настройках сайта.</small></div><button class="secondary" id="pushSettingsBtn" type="button">🔔 Включить уведомления</button></div></div></div>
 <div class="setting-card"><h3>🛠 Дополнительно</h3><div class="setting-row"><div><label>Сохранение настроек</label><small>Настройки хранятся локально в текущем браузере</small></div><button class="secondary" id="resetSettings">Сбросить настройки</button></div><div class="tool-result" id="settingsStatus">Настройки готовы к изменению.</div></div>
+<div class="setting-card admin-settings-card">
+<h3>🛡 Администрирование</h3>
+<p>Управление аккаунтами BLOCK. Доступ защищён отдельным администраторским паролем.</p>
+<div id="adminLoginCard">
+<label class="field"><span>Админ-пароль</span><input id="adminPasswordInput" type="password" autocomplete="off" placeholder="Введи пароль администратора"></label>
+<button class="primary" id="adminLoginBtn" type="button">Открыть панель администратора</button>
+<div class="error" id="adminError" role="status" aria-live="polite"></div>
+</div>
+<div id="adminPanel" class="hidden">
+<div class="setting-row"><div><label>Аккаунты пользователей</label><small>Удаление необратимо и удаляет учётную запись из Supabase Auth.</small></div><button class="secondary" id="adminRefreshBtn" type="button">Обновить</button></div>
+<div id="adminUsersList" class="users"><div class="empty">Загрузка…</div></div>
+<button class="secondary" id="adminLockBtn" type="button" style="width:100%;margin-top:12px">Закрыть панель</button>
+<div class="error" id="adminPanelError" role="status" aria-live="polite"></div>
+</div>
+</div>
 </div></section>
 <section class="workspace-panel hidden" id="gamesScreen">
 <h1 class="panel-heading">🎮 Игры</h1>
@@ -775,6 +798,53 @@ $('saveCreateGroup').addEventListener('click',async()=>{
   finally{b.disabled=false}
 });
 
+let blockAdminPassword=null;
+async function callBlockAdmin(action,userId){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session?.access_token)throw new Error('Сессия истекла. Войди в BLOCK заново.');
+  const response=await fetch(SUPABASE_URL+'/functions/v1/block-admin',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+session.access_token},
+    body:JSON.stringify({action,password:blockAdminPassword,user_id:userId||null})
+  });
+  const result=await response.json().catch(()=>({error:'Сервер вернул некорректный ответ.'}));
+  if(!response.ok)throw new Error(result.error||'Ошибка административного запроса.');
+  return result;
+}
+async function renderAdminUsers(){
+  $('adminPanelError').textContent='';
+  $('adminUsersList').innerHTML='<div class="empty">Загружаем аккаунты…</div>';
+  try{
+    const result=await callBlockAdmin('list');
+    const users=Array.isArray(result.users)?result.users:[];
+    if(!users.length){$('adminUsersList').innerHTML='<div class="empty">Аккаунтов пока нет.</div>';return}
+    $('adminUsersList').innerHTML=users.map(u=>'<div class="admin-user-row"><div class="admin-user-meta"><strong>'+esc(u.username||'Без имени')+'</strong><small>'+esc(u.id)+'</small></div><button class="admin-delete-btn" type="button" data-admin-delete="'+esc(u.id)+'" '+(String(u.id)===String(me?.id)?'disabled title="Нельзя удалить текущий аккаунт"':'')+'>Удалить</button></div>').join('');
+  }catch(err){$('adminUsersList').innerHTML='<div class="empty">Не удалось загрузить пользователей.</div>';$('adminPanelError').textContent=errorText(err)}
+}
+$('adminLoginBtn').addEventListener('click',async()=>{
+  const password=$('adminPasswordInput').value;
+  if(!password){$('adminError').textContent='Введи админ-пароль.';return}
+  const b=$('adminLoginBtn');b.disabled=true;b.textContent='Проверяем…';$('adminError').textContent='';
+  blockAdminPassword=password;
+  try{
+    await callBlockAdmin('list');
+    $('adminLoginCard').classList.add('hidden');$('adminPanel').classList.remove('hidden');
+    $('adminPasswordInput').value='';await renderAdminUsers();
+  }catch(err){blockAdminPassword=null;$('adminError').textContent=errorText(err)}
+  finally{b.disabled=false;b.textContent='Открыть панель администратора'}
+});
+$('adminPasswordInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('adminLoginBtn').click()});
+$('adminRefreshBtn').addEventListener('click',renderAdminUsers);
+$('adminLockBtn').addEventListener('click',()=>{blockAdminPassword=null;$('adminPanel').classList.add('hidden');$('adminLoginCard').classList.remove('hidden');$('adminError').textContent='';$('adminPanelError').textContent=''});
+$('adminUsersList').addEventListener('click',async e=>{
+  const button=e.target.closest('[data-admin-delete]');if(!button||button.disabled)return;
+  const id=button.dataset.adminDelete;
+  const row=button.closest('.admin-user-row');const name=row?.querySelector('strong')?.textContent||'этот аккаунт';
+  if(!confirm('Удалить аккаунт «'+name+'» навсегда? Это действие нельзя отменить.'))return;
+  button.disabled=true;button.textContent='Удаляем…';$('adminPanelError').textContent='';
+  try{await callBlockAdmin('delete',id);toast('Аккаунт удалён');await renderAdminUsers()}
+  catch(err){button.disabled=false;button.textContent='Удалить';$('adminPanelError').textContent='Не удалось удалить аккаунт: '+errorText(err)}
+});
 function loadLauncherSettings(){let s={};try{s=JSON.parse(localStorage.getItem('block_launcher_settings_v1')||'{}')}catch{}$('themeSetting').value=s.theme||'default';$('fontSetting').value=String(s.font||13);$('compactSetting').checked=!!s.compact;$('motionSetting').checked=s.motion!==false;$('soundSetting').checked=!!s.sound;$('enterSetting').checked=s.enter!==false;applyLauncherSettings()}
 function applyLauncherSettings(){const s={theme:$('themeSetting').value,font:Number($('fontSetting').value),compact:$('compactSetting').checked,motion:$('motionSetting').checked,sound:$('soundSetting').checked,enter:$('enterSetting').checked};document.body.classList.remove('theme-light','theme-midnight','compact-mode','no-motion');if(s.theme==='light')document.body.classList.add('theme-light');if(s.theme==='midnight')document.body.classList.add('theme-midnight');if(s.compact)document.body.classList.add('compact-mode');if(!s.motion)document.body.classList.add('no-motion');document.documentElement.style.fontSize=s.font+'px';try{localStorage.setItem('block_launcher_settings_v1',JSON.stringify(s))}catch{}}
 ['themeSetting','fontSetting','compactSetting','motionSetting','soundSetting','enterSetting'].forEach(id=>$(id).addEventListener('change',()=>{applyLauncherSettings();$('settingsStatus').textContent='Изменения сохранены.'}));
