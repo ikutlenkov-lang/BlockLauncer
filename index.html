@@ -500,7 +500,8 @@ async function sendCallSignal(type,data={},callId=activeCallId||incomingCallId){
 
 
 /* BLOCK online Battleship — Realtime Broadcast, no extra SQL tables required */
-let bsChannel=null,bsChannelReady=Promise.resolve(false),bsUsers=[],bsPendingInvite=null,bsGame=null,bsSelectedOpponent=null;\nlet rpsPendingInvite=null,rpsSelectedOpponent=null;
+let bsChannel=null,bsChannelReady=Promise.resolve(false),bsUsers=[],bsPendingInvite=null,bsGame=null,bsSelectedOpponent=null;
+let rpsPendingInvite=null,rpsSelectedOpponent=null;
 function setupBattleshipChannel(){
   if(!db||!me)return;
   if(bsChannel)db.removeChannel(bsChannel);
