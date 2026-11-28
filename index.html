@@ -264,6 +264,19 @@ button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-of
 .game-catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;max-width:850px}.game-tile{display:flex;align-items:center;gap:13px;min-height:92px;padding:16px;text-align:left;border:1px solid #304765;border-radius:17px;background:linear-gradient(145deg,#192b45,#101a2b);color:#f3f6fc;transition:transform .18s,border-color .18s,background .18s}.game-tile:not(.game-tile-soon):hover{transform:translateY(-2px);border-color:#75aaff;background:linear-gradient(145deg,#203957,#132238)}.game-tile-icon{width:49px;height:49px;flex:none;border-radius:15px;display:grid;place-items:center;background:#29476b;font-size:25px}.game-tile-copy{min-width:0;flex:1}.game-tile-copy strong{display:block;font-size:15px}.game-tile-copy small{display:block;color:#9eb0ca;font-size:11px;margin-top:5px;line-height:1.4}.game-tile-arrow{font-size:27px;color:#8ebcff}.game-tile-soon{opacity:.62;cursor:default;border-style:dashed}.game-soon-label{font-size:10px;color:#a9bad3;border:1px solid #425875;border-radius:20px;padding:5px 8px;white-space:nowrap}.game-catalog-note{grid-column:1/-1;color:#8496b1;font-size:11px;padding:5px 2px}.game-back-btn{padding:9px 13px;border-radius:11px;background:#1b2b43;border:1px solid #354c6d;color:#cfe0f8;margin-bottom:15px}.game-section-title{font-size:21px;margin:0 0 7px}.bs-help-text{text-align:center;color:#9eb0ca;font-size:11px;line-height:1.5;margin:10px 0 0}.bs-cell.bs-sunk{background:#725c35!important;border:2px solid #ffd27b!important;color:#fff!important;box-shadow:inset 0 0 0 1px #ffedb0}.bs-cell.bs-hit{font-size:clamp(12px,2vw,19px);text-shadow:0 1px 5px #300}.bs-cell.bs-miss{font-size:clamp(12px,2vw,18px);color:#a9d8ff}.bs-legend b{font-size:16px;line-height:1}.bs-legend .bs-legend-hit{color:#ff8792}.bs-legend .bs-legend-miss{color:#9ed5ff}.bs-legend-sunk{background:#ffd27b}
 @media(max-width:650px){.game-catalog{grid-template-columns:1fr}.game-tile{min-height:82px}.bs-help-text{font-size:10px}}
 </style>
+<style id="block-rps-styles">
+.rps-lobby{max-width:760px;margin:12px 0 16px}.rps-select-row{display:flex;gap:9px;flex-wrap:wrap}.rps-select-row select{flex:1;min-width:190px;background:#0a1220;border:1px solid #2b3b54;color:#f3f6fc;padding:11px 12px;border-radius:11px}
+.rps-incoming{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;padding:13px;border:1px solid #42658f;border-radius:13px;background:#172b46}
+.rps-arena{max-width:760px;padding:20px;border:1px solid #2a3b55;border-radius:18px;background:linear-gradient(155deg,#17243a,#101827)}
+.rps-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.rps-choice{min-height:112px;border:1px solid #355071;border-radius:16px;background:#0d1a2c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:750;transition:transform .15s,border-color .15s,background .15s}
+.rps-choice span{font-size:38px}.rps-choice:not(:disabled):hover{transform:translateY(-3px);border-color:#83baff;background:#19304d}.rps-choice:disabled{opacity:.55;cursor:default}
+.rps-score{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;padding:14px;border:1px solid #2b3d58;border-radius:14px;background:#0c1626;text-align:center}
+.rps-score strong{display:block;font-size:26px;font-variant-numeric:tabular-nums}.rps-score small{display:block;color:#9eb0ca;font-size:11px;margin-top:4px}.rps-versus{color:#8fa3c0;font-size:12px;font-weight:800}
+.rps-status{text-align:center;color:#cfe2ff;min-height:24px;margin:15px 0 4px;font-size:13px}.rps-round{text-align:center;color:#8fa3c0;font-size:11px;margin-top:8px}
+.rps-picked{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:12px 0;color:#dceaff;font-size:12px}.rps-picked span{padding:9px 12px;border-radius:10px;background:#0c1626;border:1px solid #2b3d58}
+@media(max-width:480px){.rps-arena{padding:13px}.rps-choices{gap:6px}.rps-choice{min-height:95px;font-size:11px}.rps-choice span{font-size:31px}}
+</style>
 </head>
 <body>
 <div class="shell"><main class="window">
@@ -305,6 +318,7 @@ button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-of
 <div id="gameCatalog" class="game-catalog">
 <button class="game-tile" type="button" data-game-select="tictactoe"><span class="game-tile-icon">⭕</span><span class="game-tile-copy"><strong>Крестики-нолики</strong><small>Онлайн-матч с выбранным собеседником · 2 игрока</small></span><span class="game-tile-arrow">›</span></button>
 <button class="game-tile" type="button" data-game-select="battleship"><span class="game-tile-icon">⚓</span><span class="game-tile-copy"><strong>Морской бой</strong><small>Онлайн-матч с другом · 2 игрока</small></span><span class="game-tile-arrow">›</span></button>
+<button class="game-tile" type="button" data-game-select="rps"><span class="game-tile-icon">✊</span><span class="game-tile-copy"><strong>Камень, ножницы, бумага</strong><small>Онлайн-матч с любым игроком BLOCK · 2 игрока</small></span><span class="game-tile-arrow">›</span></button>
 <div class="game-tile game-tile-soon"><span class="game-tile-icon">🎲</span><span class="game-tile-copy"><strong>Новая игра</strong><small>Скоро появится в BLOCK</small></span><span class="game-soon-label">Скоро</span></div>
 <div class="game-catalog-note">Другие игры можно будет добавить сюда отдельными карточками.</div>
 </div>
@@ -324,6 +338,24 @@ button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-of
 <p class="panel-subtitle">Попадание отмечается крестиком ✕, промах — точкой •. Потопленный корабль выделяется золотой рамкой.</p>
 <div class="tool-card bs-lobby"><h3>⚓ Новая партия</h3><p>Выбери соперника из пользователей BLOCK. Он должен быть онлайн, чтобы принять приглашение.</p><div class="bs-invite-row"><select id="bsOpponentSelect"><option value="">Загружаем пользователей…</option></select><button class="primary-mini" id="bsInviteBtn" type="button">Пригласить</button></div><div class="tool-result" id="bsLobbyStatus">Выбери друга и отправь приглашение.</div><div class="bs-incoming hidden" id="bsIncoming"><div><strong id="bsIncomingTitle">Приглашение в морской бой</strong><p id="bsIncomingText">Тебя пригласили сыграть.</p></div><div class="tool-actions"><button class="primary-mini" id="bsAcceptBtn" type="button">Принять</button><button id="bsRejectBtn" type="button">Отклонить</button></div></div></div>
 <div class="bs-game hidden" id="bsGamePanel"><div class="bs-game-head"><div><h2 id="bsGameTitle">Морской бой</h2><p id="bsGameStatus">Ожидание…</p></div><button class="secondary" id="bsNewGameBtn" type="button">Новая партия</button></div><div class="bs-boards"><div class="bs-board-card"><h3>Твой флот</h3><p>Твои корабли и попадания соперника</p><div class="bs-grid" id="bsOwnBoard" aria-label="Твоё поле"></div></div><div class="bs-board-card"><h3>Поле соперника</h3><p>Нажимай на клетку, чтобы выстрелить</p><div class="bs-grid" id="bsEnemyBoard" aria-label="Поле соперника"></div></div></div><div class="bs-legend"><span><i class="bs-legend-ship"></i> ■ Твой корабль</span><span><b class="bs-legend-hit">✕</b> Попадание</span><span><b class="bs-legend-miss">•</b> Промах</span><span><i class="bs-legend-sunk"></i> Потоплен</span></div><p class="bs-help-text">Красный крестик — попал. Голубая точка — выстрел мимо. Золотая рамка — корабль полностью потоплен.</p></div>
+</div>
+<div id="rpsGameArea" class="hidden">
+<button class="game-back-btn" id="rpsBackToGames" type="button">← Все игры</button>
+<h2 class="game-section-title">✊ Камень, ножницы, бумага</h2>
+<p class="panel-subtitle">Выбери соперника, отправь приглашение и сыграйте онлайн. Побеждает тот, кто первым выиграет 3 раунда.</p>
+<div class="tool-card rps-lobby">
+<h3>🎮 Новая партия</h3><p>Выбери любого пользователя BLOCK. Приглашение появится у него в разделе «Игры».</p>
+<div class="rps-select-row"><select id="rpsOpponentSelect"><option value="">Загружаем пользователей…</option></select><button class="primary-mini" id="rpsInviteBtn" type="button">Отправить приглашение</button></div>
+<div class="tool-result" id="rpsLobbyStatus">Выбери соперника и отправь приглашение.</div>
+<div class="rps-incoming hidden" id="rpsIncoming"><div><strong id="rpsIncomingTitle">✊ Приглашение в игру</strong><p id="rpsIncomingText" style="margin:4px 0 0;color:#a9bad3;font-size:12px">Тебя пригласили сыграть.</p></div><div class="tool-actions"><button class="primary-mini" id="rpsAcceptBtn" type="button">Принять</button><button id="rpsRejectBtn" type="button">Отклонить</button></div></div>
+</div>
+<div class="rps-arena hidden" id="rpsArena">
+<div class="rps-score"><div><strong id="rpsMyScore">0</strong><small id="rpsMyLabel">Ты</small></div><div class="rps-versus">СЧЁТ</div><div><strong id="rpsTheirScore">0</strong><small id="rpsTheirLabel">Соперник</small></div></div>
+<div class="rps-status" id="rpsStatus">Выбери свой ход.</div><div class="rps-round" id="rpsRound">Раунд 1 · до трёх побед</div>
+<div class="rps-choices"><button class="rps-choice" data-rps-choice="rock" type="button"><span>✊</span>Камень</button><button class="rps-choice" data-rps-choice="scissors" type="button"><span>✌️</span>Ножницы</button><button class="rps-choice" data-rps-choice="paper" type="button"><span>✋</span>Бумага</button></div>
+<div class="rps-picked" id="rpsPicked"><span>Твой выбор: —</span><span>Выбор соперника: —</span></div>
+<div class="tool-actions" style="justify-content:center"><button class="primary-mini" id="rpsAgainBtn" type="button">Сыграть ещё раз</button><button id="rpsExitBtn" type="button">Выйти из партии</button></div>
+</div>
 </div></section>
 </div></main></div><div class="profile-modal hidden" id="profileModal"><div class="profile-card"><h2>Мой профиль</h2><p>Настрой, как тебя видят другие пользователи BLOCK.</p><div class="avatar profile-avatar" id="profileAvatar">B</div><input id="avatarFile" type="file" accept="image/*" class="hidden"><button class="secondary" id="chooseAvatar" style="width:100%">Загрузить фотографию</button><button class="secondary" id="openAvatarEditor" type="button" style="width:100%;margin-top:8px">🎨 Создать аватар</button><div class="field"><span>Логин</span><input id="profileUsername" disabled></div><div class="field"><span>Статус</span><input id="profileStatus" maxlength="60" placeholder="Например, Играю в Minecraft"></div><div class="profile-actions"><button class="secondary" id="closeProfile">Закрыть</button><button class="primary" id="saveProfile" style="margin:0">Сохранить статус</button></div><div class="account-danger"><strong>Удаление аккаунта</strong><p>Аккаунт, профиль, переписка и загруженные тобой файлы будут удалены без возможности восстановления.</p><button class="danger-account" id="deleteAccountBtn" type="button">Удалить аккаунт навсегда</button></div><div class="error" id="profileError"></div></div></div><div class="avatar-editor hidden" id="avatarEditor"><div class="avatar-editor-card"><h2 style="margin:0 0 5px">Создать аватар</h2><p style="margin:0;color:var(--muted);font-size:12px">Выбери символ и фон — BLOCK создаст изображение профиля.</p><div class="avatar-preview" id="avatarPreview">😎</div><label class="field"><span>Символ или эмодзи</span><input class="avatar-emoji" id="avatarEmoji" maxlength="4" value="😎" placeholder="Например, 🚀"></label><div class="avatar-options" id="avatarColors"><button class="avatar-color" type="button" data-color="#3978e8" style="background:linear-gradient(135deg,#83baff,#3978e8)" aria-label="Синий"></button><button class="avatar-color" type="button" data-color="#7c3aed" style="background:linear-gradient(135deg,#c4a3ff,#7c3aed)" aria-label="Фиолетовый"></button><button class="avatar-color" type="button" data-color="#0f9f83" style="background:linear-gradient(135deg,#80f0cb,#0f9f83)" aria-label="Бирюзовый"></button><button class="avatar-color" type="button" data-color="#e87935" style="background:linear-gradient(135deg,#ffd08a,#e87935)" aria-label="Оранжевый"></button><button class="avatar-color" type="button" data-color="#d34b78" style="background:linear-gradient(135deg,#ffb2cc,#d34b78)" aria-label="Розовый"></button><button class="avatar-color" type="button" data-color="#475569" style="background:linear-gradient(135deg,#a8b6ca,#475569)" aria-label="Серый"></button></div><div class="profile-actions"><button class="secondary" id="cancelAvatarEditor" type="button">Отмена</button><button class="primary" id="saveCreatedAvatar" type="button" style="margin:0">Сохранить аватар</button></div><div class="error" id="avatarEditorError"></div></div></div><div class="group-create-modal hidden" id="groupCreateModal"><div class="group-create-card"><h2 style="margin:0 0 6px">Новая группа</h2><p style="margin:0;color:var(--muted);font-size:12px">Укажи название и выбери участников.</p><label class="field"><span>Название группы</span><input id="newGroupName" maxlength="48" placeholder="Например, Друзья"></label><div class="group-member-list" id="groupMemberOptions"><div class="group-empty">Загружаем пользователей…</div></div><div class="profile-actions"><button class="secondary" id="cancelCreateGroup" type="button">Отмена</button><button class="primary" id="saveCreateGroup" type="button" style="margin:0">Создать группу</button></div><div class="error" id="groupCreateError"></div></div></div><div class="profile-modal hidden" id="friendProfileModal"><div class="profile-card friend-view-card"><div class="avatar friend-view-avatar" id="friendViewAvatar">F</div><div class="friend-view-name" id="friendViewName">Друг</div><button class="secondary friend-view-close" id="closeFriendProfile" type="button">Закрыть</button></div></div><div class="toast" id="toast"></div><div id="pushDiagnostic" role="status" aria-live="polite" hidden style="position:fixed;z-index:99999;left:12px;right:12px;bottom:12px;max-height:38vh;overflow:auto;padding:14px 16px;border:1px solid #d69b45;border-radius:12px;background:#171d2a;color:#fff;font:14px/1.5 system-ui;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 8px 30px #0009"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -468,12 +500,13 @@ async function sendCallSignal(type,data={},callId=activeCallId||incomingCallId){
 
 
 /* BLOCK online Battleship — Realtime Broadcast, no extra SQL tables required */
-let bsChannel=null,bsChannelReady=Promise.resolve(false),bsUsers=[],bsPendingInvite=null,bsGame=null,bsSelectedOpponent=null;
+let bsChannel=null,bsChannelReady=Promise.resolve(false),bsUsers=[],bsPendingInvite=null,bsGame=null,bsSelectedOpponent=null;\nlet rpsPendingInvite=null,rpsSelectedOpponent=null;
 function setupBattleshipChannel(){
   if(!db||!me)return;
   if(bsChannel)db.removeChannel(bsChannel);
   bsChannel=db.channel('block-games-global')
-    .on('broadcast',{event:'battleship'},({payload})=>handleBattleshipEvent(payload));
+    .on('broadcast',{event:'battleship'},({payload})=>handleBattleshipEvent(payload))
+    .on('broadcast',{event:'rps'},({payload})=>handleRpsEvent(payload));
   bsChannelReady=new Promise((resolve,reject)=>{
     bsChannel.subscribe(status=>{
       if(status==='SUBSCRIBED'){$('bsLobbyStatus').textContent='Онлайн-канал игр подключён.';resolve(true)}
@@ -489,7 +522,8 @@ async function loadBattleshipUsers(){
     const {data,error}=await db.from('profiles').select('id,username,avatar_url').neq('id',me.id).order('username');
     if(error)throw error;bsUsers=data||[];select.innerHTML='<option value="">Выбери соперника…</option>';
     bsUsers.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.username;select.appendChild(o)});
-    if(!bsUsers.length)select.innerHTML='<option value="">Пока нет других пользователей</option>';
+    const rpsSelect=$('rpsOpponentSelect');rpsSelect.innerHTML='<option value="">Выбери соперника…</option>';bsUsers.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.username;rpsSelect.appendChild(o)});
+    if(!bsUsers.length){select.innerHTML='<option value="">Пока нет других пользователей</option>'; $('rpsOpponentSelect').innerHTML='<option value="">Пока нет других пользователей</option>'}
   }catch(err){select.innerHTML='<option value="">Не удалось загрузить пользователей</option>';toast('Список игроков: '+errorText(err))}
 }
 function bsRandomFleet(){
@@ -626,6 +660,65 @@ $('bsRejectBtn').addEventListener('click',rejectBattleship);
 $('bsNewGameBtn').addEventListener('click',()=>{if(bsGame&&['playing','waiting','starting'].includes(bsGame.status)&&!confirm('Завершить текущую партию и начать заново?'))return;bsGame=null;renderBattleship();$('bsLobbyStatus').textContent='Выбери соперника и отправь приглашение.'});
 $('bsOpponentSelect').addEventListener('change',()=>{bsSelectedOpponent=bsUsers.find(u=>String(u.id)===$('bsOpponentSelect').value)||null});
 
+let rpsGame=null;
+const rpsEmoji={rock:'✊',scissors:'✌️',paper:'✋'},rpsNames={rock:'Камень',scissors:'Ножницы',paper:'Бумага'};
+function rpsWinner(a,b){if(a===b)return 0;return (a==='rock'&&b==='scissors')||(a==='scissors'&&b==='paper')||(a==='paper'&&b==='rock')?1:2}
+function renderRps(){
+ const arena=$('rpsArena');arena.classList.toggle('hidden',!rpsGame);if(!rpsGame)return;
+ $('rpsMyScore').textContent=rpsGame.myScore;$('rpsTheirScore').textContent=rpsGame.theirScore;
+ $('rpsMyLabel').textContent='Ты · '+(me.username||'Игрок');$('rpsTheirLabel').textContent=rpsGame.opponentName||'Соперник';
+ $('rpsRound').textContent='Раунд '+rpsGame.round+' · до трёх побед';
+ const mine=rpsGame.myChoice,theirs=rpsGame.theirChoice;
+ $('rpsPicked').innerHTML='<span>Твой выбор: '+(mine?rpsEmoji[mine]+' '+rpsNames[mine]:'—')+'</span><span>Выбор соперника: '+(theirs?rpsEmoji[theirs]+' '+rpsNames[theirs]:'—')+'</span>';
+ document.querySelectorAll('[data-rps-choice]').forEach(b=>b.disabled=rpsGame.status!=='playing'||!!mine);
+ if(rpsGame.status==='waiting')$('rpsStatus').textContent='Приглашение отправлено. Ждём ответа…';
+ else if(rpsGame.status==='invited')$('rpsStatus').textContent='Тебя пригласили. Прими приглашение, чтобы начать.';
+ else if(rpsGame.status==='playing')$('rpsStatus').textContent=mine?'Выбор сделан. Ждём соперника…':'Выбери камень, ножницы или бумагу!';
+ else if(rpsGame.status==='ended')$('rpsStatus').textContent=rpsGame.myScore===rpsGame.theirScore?'Матч завершён вничью!':rpsGame.myScore>rpsGame.theirScore?'🏆 Ты выиграл матч!':'Матч выиграл соперник.';
+}
+function resolveRpsRound(){
+ if(!rpsGame||rpsGame.status!=='playing'||!rpsGame.myChoice||!rpsGame.theirChoice||rpsGame.resolvedRound===rpsGame.round)return;
+ rpsGame.resolvedRound=rpsGame.round;const outcome=rpsWinner(rpsGame.myChoice,rpsGame.theirChoice);
+ if(outcome===1)rpsGame.myScore++;if(outcome===2)rpsGame.theirScore++;
+ $('rpsStatus').textContent=outcome===0?'Ничья в раунде!':outcome===1?'Ты выиграл раунд!':'Соперник выиграл раунд.';
+ renderRps();
+ if(rpsGame.myScore>=3||rpsGame.theirScore>=3){rpsGame.status='ended';renderRps();return}
+ const gameId=rpsGame.id,round=rpsGame.round;
+ setTimeout(()=>{if(rpsGame?.id!==gameId||rpsGame.status!=='playing'||rpsGame.round!==round)return;rpsGame.round++;rpsGame.myChoice=null;rpsGame.theirChoice=null;renderRps()},1100);
+}
+async function sendRps(type,to,extra={}){if(!bsChannel)throw new Error('Игровой канал не подключён. Обнови страницу.');await bsChannelReady;const result=await bsChannel.send({type:'broadcast',event:'rps',payload:{type,from:String(me.id),to:String(to),gameId:rpsGame?.id||extra.gameId,...extra}});if(result!=='ok')throw new Error('Не удалось отправить игровое событие.')}
+async function inviteRps(){
+ const id=$('rpsOpponentSelect').value;rpsSelectedOpponent=bsUsers.find(u=>String(u.id)===String(id));
+ if(!rpsSelectedOpponent){toast('Сначала выбери соперника.');return}
+ if(rpsGame&&['waiting','playing'].includes(rpsGame.status)){toast('Сначала заверши текущую партию.');return}
+ rpsGame={id:crypto.randomUUID(),opponentId:String(rpsSelectedOpponent.id),opponentName:rpsSelectedOpponent.username,myScore:0,theirScore:0,round:1,myChoice:null,theirChoice:null,resolvedRound:0,status:'waiting'};
+ $('rpsLobbyStatus').textContent='Отправляем приглашение '+rpsGame.opponentName+'…';renderRps();
+ try{await sendRps('invite',rpsGame.opponentId,{fromName:me.username});$('rpsLobbyStatus').textContent='Приглашение отправлено игроку '+rpsGame.opponentName+'.'}
+ catch(err){rpsGame=null;renderRps();toast(errorText(err))}
+}
+async function handleRpsEvent(p){
+ if(!p||String(p.to)!==String(me?.id)||String(p.from)===String(me?.id))return;
+ if(p.type==='invite'){
+  if(rpsGame&&['playing','waiting'].includes(rpsGame.status))return;
+  rpsPendingInvite={gameId:p.gameId,from:String(p.from),name:p.fromName||bsUsers.find(u=>String(u.id)===String(p.from))?.username||'Игрок'};
+  $('rpsIncomingTitle').textContent='✊ Приглашение от '+rpsPendingInvite.name;$('rpsIncomingText').textContent=rpsPendingInvite.name+' предлагает сыграть в камень, ножницы, бумага.';
+  $('rpsIncoming').classList.remove('hidden');$('rpsLobbyStatus').textContent='Новое приглашение от '+rpsPendingInvite.name+'.';
+  show('gamesScreen');$('gameCatalog').classList.add('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');$('rpsGameArea').classList.remove('hidden');toast('✊ '+rpsPendingInvite.name+' приглашает сыграть!');return;
+ }
+ if(!rpsGame||rpsGame.id!==p.gameId||String(rpsGame.opponentId)!==String(p.from))return;
+ if(p.type==='accept'&&rpsGame.status==='waiting'){rpsGame.status='playing';renderRps();$('rpsLobbyStatus').textContent='Соперник принял приглашение. Игра началась!';return}
+ if(p.type==='reject'){rpsGame.status='ended';$('rpsLobbyStatus').textContent='Соперник отклонил приглашение.';renderRps();return}
+ if(p.type==='choice'&&rpsGame.status==='playing'&&p.round===rpsGame.round&&!rpsGame.theirChoice&&['rock','paper','scissors'].includes(p.choice)){rpsGame.theirChoice=p.choice;renderRps();resolveRpsRound();return}
+ if(p.type==='rematch'&&rpsGame.status==='ended'){rpsGame.myScore=0;rpsGame.theirScore=0;rpsGame.round=1;rpsGame.myChoice=null;rpsGame.theirChoice=null;rpsGame.resolvedRound=0;rpsGame.status='playing';renderRps();return}
+ if(p.type==='exit'){rpsGame.status='ended';$('rpsStatus').textContent='Соперник вышел из партии.';renderRps()}
+}
+$('rpsInviteBtn').addEventListener('click',inviteRps);
+$('rpsAcceptBtn').addEventListener('click',async()=>{if(!rpsPendingInvite)return;const invite=rpsPendingInvite;rpsPendingInvite=null;$('rpsIncoming').classList.add('hidden');rpsGame={id:invite.gameId,opponentId:invite.from,opponentName:invite.name,myScore:0,theirScore:0,round:1,myChoice:null,theirChoice:null,resolvedRound:0,status:'playing'};try{await sendRps('accept',invite.from,{gameId:invite.gameId});$('rpsLobbyStatus').textContent='Приглашение принято. Игра началась!';renderRps()}catch(err){rpsGame=null;renderRps();toast(errorText(err))}});
+$('rpsRejectBtn').addEventListener('click',async()=>{if(!rpsPendingInvite)return;const invite=rpsPendingInvite;rpsPendingInvite=null;$('rpsIncoming').classList.add('hidden');try{await sendRps('reject',invite.from,{gameId:invite.gameId})}catch(err){toast(errorText(err))}$('rpsLobbyStatus').textContent='Приглашение отклонено.'});
+document.querySelectorAll('[data-rps-choice]').forEach(b=>b.addEventListener('click',async()=>{if(!rpsGame||rpsGame.status!=='playing'||rpsGame.myChoice)return;const choice=b.dataset.rpsChoice;rpsGame.myChoice=choice;renderRps();try{await sendRps('choice',rpsGame.opponentId,{gameId:rpsGame.id,choice,round:rpsGame.round});resolveRpsRound()}catch(err){rpsGame.myChoice=null;renderRps();toast(errorText(err))}}));
+$('rpsAgainBtn').addEventListener('click',async()=>{if(!rpsGame||rpsGame.status!=='ended')return;try{await sendRps('rematch',rpsGame.opponentId,{gameId:rpsGame.id});rpsGame.myScore=0;rpsGame.theirScore=0;rpsGame.round=1;rpsGame.myChoice=null;rpsGame.theirChoice=null;rpsGame.resolvedRound=0;rpsGame.status='playing';renderRps()}catch(err){toast(errorText(err))}});
+$('rpsExitBtn').addEventListener('click',async()=>{if(rpsGame){try{await sendRps('exit',rpsGame.opponentId,{gameId:rpsGame.id})}catch{}rpsGame.status='ended';renderRps()}});
+$('rpsBackToGames').addEventListener('click',()=>{$('rpsGameArea').classList.add('hidden');$('gameCatalog').classList.remove('hidden')});
 let miniGame=null,miniGameRole=null;
 function gameWinner(board){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(const line of lines){const [a,b,c]=line;if(board[a]&&board[a]===board[b]&&board[a]===board[c])return board[a]}return board.every(Boolean)?'draw':null}
 function drawMiniGame(){
@@ -911,8 +1004,8 @@ $('resetSettings').addEventListener('click',()=>{localStorage.removeItem('block_
 
 
 loadLauncherSettings();$('settingsStatus').textContent='Настройки сброшены.'});
-document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.view);if(b.dataset.view==='groupsScreen')loadGroups();if(b.dataset.view==='gamesScreen'){ $('gameCatalog').classList.remove('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');loadBattleshipUsers()}}));
-document.querySelectorAll('[data-game-select]').forEach(b=>b.addEventListener('click',()=>{const game=b.dataset.gameSelect;$('gameCatalog').classList.add('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');if(game==='battleship'){$('bsGameArea').classList.remove('hidden');loadBattleshipUsers()}else if(game==='tictactoe'){if(!friend){toast('Сначала выбери собеседника в чате BLOCK.');$('gameCatalog').classList.remove('hidden');return}$('tttGameArea').classList.remove('hidden');$('tttOpponentHint').textContent='Играешь с '+(friend.username||'собеседником')+'. Нажми «Пригласить друга».';miniGame=null;miniGameRole=null;$('miniGameInvite').hidden=false;$('miniGameAccept').hidden=true;$('miniGameReject').hidden=true;drawMiniGame()}}));
+document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.view);if(b.dataset.view==='groupsScreen')loadGroups();if(b.dataset.view==='gamesScreen'){ $('gameCatalog').classList.remove('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');$('rpsGameArea').classList.add('hidden');loadBattleshipUsers()}}));
+document.querySelectorAll('[data-game-select]').forEach(b=>b.addEventListener('click',()=>{const game=b.dataset.gameSelect;$('gameCatalog').classList.add('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');if(game==='battleship'){$('bsGameArea').classList.remove('hidden');loadBattleshipUsers()}else if(game==='rps'){$('rpsGameArea').classList.remove('hidden');loadBattleshipUsers();renderRps()}else if(game==='tictactoe'){if(!friend){toast('Сначала выбери собеседника в чате BLOCK.');$('gameCatalog').classList.remove('hidden');return}$('tttGameArea').classList.remove('hidden');$('tttOpponentHint').textContent='Играешь с '+(friend.username||'собеседником')+'. Нажми «Пригласить друга».';miniGame=null;miniGameRole=null;$('miniGameInvite').hidden=false;$('miniGameAccept').hidden=true;$('miniGameReject').hidden=true;drawMiniGame()}}));
 $('bsBackToGames').addEventListener('click',()=>{$('bsGameArea').classList.add('hidden');$('gameCatalog').classList.remove('hidden')});
 $('sideProfileBtn').addEventListener('click',openProfile);
 let timerRemaining=300,timerInterval=null;
