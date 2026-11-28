@@ -276,6 +276,15 @@ button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-of
 .rps-status{text-align:center;color:#cfe2ff;min-height:24px;margin:15px 0 4px;font-size:13px}.rps-round{text-align:center;color:#8fa3c0;font-size:11px;margin-top:8px}
 .rps-picked{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:12px 0;color:#dceaff;font-size:12px}.rps-picked span{padding:9px 12px;border-radius:10px;background:#0c1626;border:1px solid #2b3d58}
 @media(max-width:480px){.rps-arena{padding:13px}.rps-choices{gap:6px}.rps-choice{min-height:95px;font-size:11px}.rps-choice span{font-size:31px}}
+
+<style id="block-connect4-styles">
+.c4-lobby{max-width:760px;margin:12px 0 16px}.c4-incoming{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;padding:13px;border:1px solid #42658f;border-radius:13px;background:#172b46}
+.c4-arena{max-width:760px;padding:18px;border:1px solid #2a3b55;border-radius:18px;background:linear-gradient(155deg,#17243a,#101827)}
+.c4-score{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.c4-player{display:flex;align-items:center;gap:8px;color:#dceaff;font-size:12px}.c4-token{width:13px;height:13px;border-radius:50%;display:inline-block;background:#ff5d68;box-shadow:0 0 10px #ff5d6855}.c4-token.yellow{background:#ffd45b;box-shadow:0 0 10px #ffd45b55}
+.c4-status{text-align:center;min-height:24px;color:#cfe2ff;font-size:13px;margin:10px 0 14px}.c4-board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;padding:12px;border-radius:17px;background:linear-gradient(145deg,#2863b5,#17427f);border:1px solid #568bd0;box-shadow:inset 0 5px 18px #071a3a88}
+.c4-column{display:grid;grid-template-rows:repeat(6,1fr);gap:7px;min-width:0;padding:0;border:0;background:transparent;border-radius:50px;cursor:pointer}.c4-hole{display:block;width:100%;aspect-ratio:1;border-radius:50%;background:#0b1830;border:2px solid #5684bb;box-shadow:inset 0 3px 8px #0008;pointer-events:none}.c4-hole.red{background:radial-gradient(circle at 35% 28%,#ff9b9f,#e33d50 65%,#9f2036);border-color:#ff9b9f}.c4-hole.yellow{background:radial-gradient(circle at 35% 28%,#fff0a0,#f0bd32 65%,#a97910);border-color:#ffe28a}.c4-column:not(:disabled):hover .c4-hole:not(.red):not(.yellow){border-color:#c5e1ff;background:#183c6a}.c4-column:disabled{cursor:default;opacity:.72}.c4-help{text-align:center;color:#93a9c7;font-size:11px;margin:11px 0 0;line-height:1.5}
+@media(max-width:480px){.c4-arena{padding:10px}.c4-board{gap:4px;padding:7px}.c4-column{gap:4px}.c4-hole{border-width:1px}.c4-player{font-size:10px}}
+</style>
 </style>
 </head>
 <body>
@@ -318,6 +327,7 @@ button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-of
 <div id="gameCatalog" class="game-catalog">
 <button class="game-tile" type="button" data-game-select="tictactoe"><span class="game-tile-icon">⭕</span><span class="game-tile-copy"><strong>Крестики-нолики</strong><small>Онлайн-матч с выбранным собеседником · 2 игрока</small></span><span class="game-tile-arrow">›</span></button>
 <button class="game-tile" type="button" data-game-select="battleship"><span class="game-tile-icon">⚓</span><span class="game-tile-copy"><strong>Морской бой</strong><small>Онлайн-матч с другом · 2 игрока</small></span><span class="game-tile-arrow">›</span></button>
+<button class="game-tile" type="button" data-game-select="connect4"><span class="game-tile-icon">🔴</span><span class="game-tile-copy"><strong>Четыре в ряд</strong><small>Онлайн-матч с другом · 2 игрока</small></span><span class="game-tile-arrow">›</span></button>
 <button class="game-tile" type="button" data-game-select="rps"><span class="game-tile-icon">✊</span><span class="game-tile-copy"><strong>Камень, ножницы, бумага</strong><small>Онлайн-матч с любым игроком BLOCK · 2 игрока</small></span><span class="game-tile-arrow">›</span></button>
 <div class="game-tile game-tile-soon"><span class="game-tile-icon">🎲</span><span class="game-tile-copy"><strong>Новая игра</strong><small>Скоро появится в BLOCK</small></span><span class="game-soon-label">Скоро</span></div>
 <div class="game-catalog-note">Другие игры можно будет добавить сюда отдельными карточками.</div>
@@ -356,7 +366,26 @@ button:focus-visible,.nav-btn:focus-visible{outline:2px solid #9bc7ff;outline-of
 <div class="rps-picked" id="rpsPicked"><span>Твой выбор: —</span><span>Выбор соперника: —</span></div>
 <div class="tool-actions" style="justify-content:center"><button class="primary-mini" id="rpsAgainBtn" type="button">Сыграть ещё раз</button><button id="rpsExitBtn" type="button">Выйти из партии</button></div>
 </div>
-</div></section>
+</div>
+<div id="c4GameArea" class="hidden">
+<button class="game-back-btn" id="c4BackToGames" type="button">← Все игры</button>
+<h2 class="game-section-title">🔴 Четыре в ряд</h2>
+<p class="panel-subtitle">Подключись к другу и первым собери четыре фишки по горизонтали, вертикали или диагонали.</p>
+<div class="tool-card c4-lobby">
+<h3>🎮 Новая партия</h3><p>Выбери пользователя BLOCK и отправь приглашение. Соперник должен принять его, чтобы начать игру.</p>
+<div class="rps-select-row"><select id="c4OpponentSelect"><option value="">Загружаем пользователей…</option></select><button class="primary-mini" id="c4InviteBtn" type="button">Пригласить</button></div>
+<div class="tool-result" id="c4LobbyStatus">Выбери соперника и отправь приглашение.</div>
+<div class="c4-incoming hidden" id="c4Incoming"><div><strong id="c4IncomingTitle">🔴 Приглашение в «Четыре в ряд»</strong><p id="c4IncomingText" style="margin:4px 0 0;color:#a9bad3;font-size:12px">Тебя пригласили сыграть.</p></div><div class="tool-actions"><button class="primary-mini" id="c4AcceptBtn" type="button">Принять</button><button id="c4RejectBtn" type="button">Отклонить</button></div></div>
+</div>
+<div class="c4-arena hidden" id="c4Arena">
+<div class="c4-score"><div class="c4-player"><i class="c4-token"></i><span id="c4RedLabel">Красные · ты</span></div><div class="c4-player"><i class="c4-token yellow"></i><span id="c4YellowLabel">Жёлтые · соперник</span></div></div>
+<div class="c4-status" id="c4Status">Твой ход.</div>
+<div class="c4-board" id="c4Board" aria-label="Поле игры четыре в ряд"></div>
+<p class="c4-help">Нажми на любой столбец, чтобы опустить фишку. Побеждает первый, кто соберёт четыре подряд.</p>
+<div class="tool-actions" style="justify-content:center;margin-top:14px"><button class="primary-mini" id="c4AgainBtn" type="button">Сыграть ещё раз</button><button id="c4ExitBtn" type="button">Выйти из партии</button></div>
+</div>
+</div>
+</section>
 </div></main></div><div class="profile-modal hidden" id="profileModal"><div class="profile-card"><h2>Мой профиль</h2><p>Настрой, как тебя видят другие пользователи BLOCK.</p><div class="avatar profile-avatar" id="profileAvatar">B</div><input id="avatarFile" type="file" accept="image/*" class="hidden"><button class="secondary" id="chooseAvatar" style="width:100%">Загрузить фотографию</button><button class="secondary" id="openAvatarEditor" type="button" style="width:100%;margin-top:8px">🎨 Создать аватар</button><div class="field"><span>Логин</span><input id="profileUsername" disabled></div><div class="field"><span>Статус</span><input id="profileStatus" maxlength="60" placeholder="Например, Играю в Minecraft"></div><div class="profile-actions"><button class="secondary" id="closeProfile">Закрыть</button><button class="primary" id="saveProfile" style="margin:0">Сохранить статус</button></div><div class="account-danger"><strong>Удаление аккаунта</strong><p>Аккаунт, профиль, переписка и загруженные тобой файлы будут удалены без возможности восстановления.</p><button class="danger-account" id="deleteAccountBtn" type="button">Удалить аккаунт навсегда</button></div><div class="error" id="profileError"></div></div></div><div class="avatar-editor hidden" id="avatarEditor"><div class="avatar-editor-card"><h2 style="margin:0 0 5px">Создать аватар</h2><p style="margin:0;color:var(--muted);font-size:12px">Выбери символ и фон — BLOCK создаст изображение профиля.</p><div class="avatar-preview" id="avatarPreview">😎</div><label class="field"><span>Символ или эмодзи</span><input class="avatar-emoji" id="avatarEmoji" maxlength="4" value="😎" placeholder="Например, 🚀"></label><div class="avatar-options" id="avatarColors"><button class="avatar-color" type="button" data-color="#3978e8" style="background:linear-gradient(135deg,#83baff,#3978e8)" aria-label="Синий"></button><button class="avatar-color" type="button" data-color="#7c3aed" style="background:linear-gradient(135deg,#c4a3ff,#7c3aed)" aria-label="Фиолетовый"></button><button class="avatar-color" type="button" data-color="#0f9f83" style="background:linear-gradient(135deg,#80f0cb,#0f9f83)" aria-label="Бирюзовый"></button><button class="avatar-color" type="button" data-color="#e87935" style="background:linear-gradient(135deg,#ffd08a,#e87935)" aria-label="Оранжевый"></button><button class="avatar-color" type="button" data-color="#d34b78" style="background:linear-gradient(135deg,#ffb2cc,#d34b78)" aria-label="Розовый"></button><button class="avatar-color" type="button" data-color="#475569" style="background:linear-gradient(135deg,#a8b6ca,#475569)" aria-label="Серый"></button></div><div class="profile-actions"><button class="secondary" id="cancelAvatarEditor" type="button">Отмена</button><button class="primary" id="saveCreatedAvatar" type="button" style="margin:0">Сохранить аватар</button></div><div class="error" id="avatarEditorError"></div></div></div><div class="group-create-modal hidden" id="groupCreateModal"><div class="group-create-card"><h2 style="margin:0 0 6px">Новая группа</h2><p style="margin:0;color:var(--muted);font-size:12px">Укажи название и выбери участников.</p><label class="field"><span>Название группы</span><input id="newGroupName" maxlength="48" placeholder="Например, Друзья"></label><div class="group-member-list" id="groupMemberOptions"><div class="group-empty">Загружаем пользователей…</div></div><div class="profile-actions"><button class="secondary" id="cancelCreateGroup" type="button">Отмена</button><button class="primary" id="saveCreateGroup" type="button" style="margin:0">Создать группу</button></div><div class="error" id="groupCreateError"></div></div></div><div class="profile-modal hidden" id="friendProfileModal"><div class="profile-card friend-view-card"><div class="avatar friend-view-avatar" id="friendViewAvatar">F</div><div class="friend-view-name" id="friendViewName">Друг</div><button class="secondary friend-view-close" id="closeFriendProfile" type="button">Закрыть</button></div></div><div class="toast" id="toast"></div><div id="pushDiagnostic" role="status" aria-live="polite" hidden style="position:fixed;z-index:99999;left:12px;right:12px;bottom:12px;max-height:38vh;overflow:auto;padding:14px 16px;border:1px solid #d69b45;border-radius:12px;background:#171d2a;color:#fff;font:14px/1.5 system-ui;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 8px 30px #0009"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -508,6 +537,7 @@ function setupBattleshipChannel(){
   bsChannel=db.channel('block-games-global')
     .on('broadcast',{event:'battleship'},({payload})=>handleBattleshipEvent(payload))
     .on('broadcast',{event:'rps'},({payload})=>handleRpsEvent(payload));
+    .on('broadcast',{event:'connect4'},({payload})=>handleC4Event(payload));
   bsChannelReady=new Promise((resolve,reject)=>{
     bsChannel.subscribe(status=>{
       if(status==='SUBSCRIBED'){$('bsLobbyStatus').textContent='Онлайн-канал игр подключён.';resolve(true)}
@@ -524,8 +554,9 @@ async function loadBattleshipUsers(){
     if(error)throw error;bsUsers=data||[];select.innerHTML='<option value="">Выбери соперника…</option>';
     bsUsers.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.username;select.appendChild(o)});
     const rpsSelect=$('rpsOpponentSelect');rpsSelect.innerHTML='<option value="">Выбери соперника…</option>';bsUsers.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.username;rpsSelect.appendChild(o)});
-    if(!bsUsers.length){select.innerHTML='<option value="">Пока нет других пользователей</option>'; $('rpsOpponentSelect').innerHTML='<option value="">Пока нет других пользователей</option>'}
-  }catch(err){select.innerHTML='<option value="">Не удалось загрузить пользователей</option>';toast('Список игроков: '+errorText(err))}
+    const c4Select=$('c4OpponentSelect');c4Select.innerHTML='<option value="">Выбери соперника…</option>';bsUsers.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.username;c4Select.appendChild(o)});
+    if(!bsUsers.length){select.innerHTML='<option value="">Пока нет других пользователей</option>'; $('rpsOpponentSelect').innerHTML='<option value="">Пока нет других пользователей</option>'; $('c4OpponentSelect').innerHTML='<option value="">Пока нет других пользователей</option>'}
+  }catch(err){select.innerHTML='<option value="">Не удалось загрузить пользователей</option>';if($('rpsOpponentSelect'))$('rpsOpponentSelect').innerHTML='<option value="">Не удалось загрузить пользователей</option>';if($('c4OpponentSelect'))$('c4OpponentSelect').innerHTML='<option value="">Не удалось загрузить пользователей</option>';toast('Список игроков: '+errorText(err))}
 }
 function bsRandomFleet(){
   const lengths=[4,3,3,2,2,2,1,1,1,1],occupied=new Set(),fleet=[];
@@ -720,6 +751,109 @@ document.querySelectorAll('[data-rps-choice]').forEach(b=>b.addEventListener('cl
 $('rpsAgainBtn').addEventListener('click',async()=>{if(!rpsGame||rpsGame.status!=='ended')return;try{await sendRps('rematch',rpsGame.opponentId,{gameId:rpsGame.id});rpsGame.myScore=0;rpsGame.theirScore=0;rpsGame.round=1;rpsGame.myChoice=null;rpsGame.theirChoice=null;rpsGame.resolvedRound=0;rpsGame.status='playing';renderRps()}catch(err){toast(errorText(err))}});
 $('rpsExitBtn').addEventListener('click',async()=>{if(rpsGame){try{await sendRps('exit',rpsGame.opponentId,{gameId:rpsGame.id})}catch{}rpsGame.status='ended';renderRps()}});
 $('rpsBackToGames').addEventListener('click',()=>{$('rpsGameArea').classList.add('hidden');$('gameCatalog').classList.remove('hidden')});
+
+/* BLOCK online Connect Four — Realtime Broadcast */
+let c4Game=null,c4PendingInvite=null;
+function c4Winner(board){
+ const lines=[];
+ for(let r=0;r<6;r++)for(let c=0;c<7;c++){
+  if(c<=3)lines.push([[r,c],[r,c+1],[r,c+2],[r,c+3]]);
+  if(r<=2)lines.push([[r,c],[r+1,c],[r+2,c],[r+3,c]]);
+  if(r<=2&&c<=3)lines.push([[r,c],[r+1,c+1],[r+2,c+2],[r+3,c+3]]);
+  if(r<=2&&c>=3)lines.push([[r,c],[r+1,c-1],[r+2,c-2],[r+3,c-3]]);
+ }
+ for(const line of lines){const v=board[line[0][0]*7+line[0][1]];if(v&&line.every(([r,c])=>board[r*7+c]===v))return v}
+ return board.every(Boolean)?'draw':null;
+}
+function renderC4(){
+ const arena=$('c4Arena');arena.classList.toggle('hidden',!c4Game);if(!c4Game)return;
+ const redName=c4Game.role==='host'?'Ты':c4Game.opponentName;
+ const yellowName=c4Game.role==='host'?c4Game.opponentName:'Ты';
+ $('c4RedLabel').textContent='Красные · '+redName;$('c4YellowLabel').textContent='Жёлтые · '+yellowName;
+ const board=$('c4Board');board.innerHTML='';
+ for(let col=0;col<7;col++){
+  const btn=document.createElement('button');btn.type='button';btn.className='c4-column';btn.dataset.c4Col=String(col);
+  btn.setAttribute('aria-label','Опустить фишку в столбец '+(col+1));
+  for(let row=0;row<6;row++){const hole=document.createElement('span');const value=c4Game.board[row*7+col];hole.className='c4-hole'+(value?' '+value:'');btn.appendChild(hole)}
+  const full=c4Game.board[col]!==null;btn.disabled=c4Game.status!=='playing'||c4Game.turn!==String(me.id)||full;
+  board.appendChild(btn);
+ }
+ let status='';
+ if(c4Game.status==='waiting')status='Приглашение отправлено. Ждём ответа…';
+ else if(c4Game.status==='playing')status=c4Game.turn===String(me.id)?'Твой ход — выбери столбец.':'Ход соперника…';
+ else if(c4Game.status==='ended')status=c4Game.winner==='draw'?'Ничья! Поле заполнено.':c4Game.winner==='red'?(c4Game.role==='host'?'🏆 Ты выиграл!':'Победили красные — '+c4Game.opponentName):c4Game.winner==='yellow'?(c4Game.role==='guest'?'🏆 Ты выиграл!':'Победили жёлтые — '+c4Game.opponentName):'Партия завершена.';
+ $('c4Status').textContent=status;
+ $('c4AgainBtn').disabled=!['ended'].includes(c4Game.status);
+}
+async function sendC4(type,to,extra={}){
+ if(!bsChannel)throw new Error('Игровой канал не подключён. Обнови страницу.');
+ await bsChannelReady;
+ const result=await bsChannel.send({type:'broadcast',event:'connect4',payload:{type,from:String(me.id),to:String(to),gameId:c4Game?.id||extra.gameId,...extra}});
+ if(result!=='ok')throw new Error('Не удалось отправить игровое событие.');
+}
+async function inviteC4(){
+ const id=$('c4OpponentSelect').value,opponent=bsUsers.find(u=>String(u.id)===String(id));
+ if(!opponent){toast('Сначала выбери соперника.');return}
+ if(c4Game&&['waiting','playing'].includes(c4Game.status)){toast('Сначала заверши текущую партию.');return}
+ c4Game={id:crypto.randomUUID(),opponentId:String(opponent.id),opponentName:opponent.username,role:'host',board:Array(42).fill(null),turn:String(me.id),status:'waiting',winner:null};
+ $('c4LobbyStatus').textContent='Отправляем приглашение '+opponent.username+'…';renderC4();
+ try{await sendC4('invite',c4Game.opponentId,{fromName:me.username});$('c4LobbyStatus').textContent='Приглашение отправлено игроку '+opponent.username+'.'}
+ catch(err){c4Game=null;renderC4();toast(errorText(err))}
+}
+async function handleC4Event(p){
+ if(!p||String(p.to)!==String(me?.id)||String(p.from)===String(me?.id))return;
+ if(p.type==='invite'){
+  if(c4Game&&['playing','waiting'].includes(c4Game.status))return;
+  c4PendingInvite={gameId:p.gameId,from:String(p.from),name:p.fromName||bsUsers.find(u=>String(u.id)===String(p.from))?.username||'Игрок'};
+  $('c4IncomingTitle').textContent='🔴 Приглашение от '+c4PendingInvite.name;
+  $('c4IncomingText').textContent=c4PendingInvite.name+' предлагает сыграть в «Четыре в ряд».';
+  $('c4Incoming').classList.remove('hidden');$('c4LobbyStatus').textContent='Новое приглашение от '+c4PendingInvite.name+'.';
+  show('gamesScreen');$('gameCatalog').classList.add('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');$('rpsGameArea').classList.add('hidden');$('c4GameArea').classList.remove('hidden');toast('🔴 '+c4PendingInvite.name+' приглашает сыграть!');return;
+ }
+ if(!c4Game||c4Game.id!==p.gameId||String(c4Game.opponentId)!==String(p.from))return;
+ if(p.type==='accept'&&c4Game.role==='host'&&c4Game.status==='waiting'){c4Game.status='playing';c4Game.turn=String(me.id);renderC4();$('c4LobbyStatus').textContent='Соперник принял приглашение. Ты ходишь первым.';return}
+ if(p.type==='reject'){c4Game.status='ended';c4Game.winner=null;renderC4();$('c4LobbyStatus').textContent='Соперник отклонил приглашение.';return}
+ if(p.type==='move'&&c4Game.status==='playing'&&c4Game.turn===String(p.from)){
+  const col=Number(p.col);if(!Number.isInteger(col)||col<0||col>6)return;
+  let row=-1;for(let rr=5;rr>=0;rr--)if(!c4Game.board[rr*7+col]){row=rr;break}
+  if(row<0)return;
+  const color=p.from===String(c4Game.opponentId)?(c4Game.role==='host'?'yellow':'red'):(c4Game.role==='host'?'red':'yellow');
+  c4Game.board[row*7+col]=color;const win=c4Winner(c4Game.board);
+  if(win){c4Game.status='ended';c4Game.winner=win}else if(c4Game.board.every(Boolean)){c4Game.status='ended';c4Game.winner='draw'}else c4Game.turn=String(me.id);
+  renderC4();return;
+ }
+ if(p.type==='rematch'&&c4Game.status==='ended'){c4Game.board=Array(42).fill(null);c4Game.winner=null;c4Game.status='playing';c4Game.turn=String(c4Game.role==='host'?me.id:c4Game.opponentId);renderC4();return}
+ if(p.type==='exit'){c4Game.status='ended';c4Game.winner=null;$('c4Status').textContent='Соперник вышел из партии.';renderC4()}
+}
+$('c4InviteBtn').addEventListener('click',inviteC4);
+$('c4AcceptBtn').addEventListener('click',async()=>{
+ if(!c4PendingInvite)return;const invite=c4PendingInvite;c4PendingInvite=null;$('c4Incoming').classList.add('hidden');
+ c4Game={id:invite.gameId,opponentId:invite.from,opponentName:invite.name,role:'guest',board:Array(42).fill(null),turn:invite.from,status:'playing',winner:null};
+ try{await sendC4('accept',invite.from,{gameId:invite.gameId});$('c4LobbyStatus').textContent='Приглашение принято. Красные ходят первыми.';renderC4()}catch(err){c4Game=null;renderC4();toast(errorText(err))}
+});
+$('c4RejectBtn').addEventListener('click',async()=>{
+ if(!c4PendingInvite)return;const invite=c4PendingInvite;c4PendingInvite=null;$('c4Incoming').classList.add('hidden');
+ try{await sendC4('reject',invite.from,{gameId:invite.gameId})}catch(err){toast(errorText(err))}
+ $('c4LobbyStatus').textContent='Приглашение отклонено.';
+});
+$('c4Board').addEventListener('click',async ev=>{
+ const btn=ev.target.closest('[data-c4-col]');if(!btn||!c4Game||c4Game.status!=='playing'||c4Game.turn!==String(me.id))return;
+ const col=Number(btn.dataset.c4Col);let row=-1;for(let rr=5;rr>=0;rr--)if(!c4Game.board[rr*7+col]){row=rr;break}if(row<0)return;
+ const color=c4Game.role==='host'?'red':'yellow';c4Game.board[row*7+col]=color;
+ const win=c4Winner(c4Game.board);if(win){c4Game.status='ended';c4Game.winner=win}else if(c4Game.board.every(Boolean)){c4Game.status='ended';c4Game.winner='draw'}else c4Game.turn=String(c4Game.opponentId);
+ renderC4();
+ try{await sendC4('move',c4Game.opponentId,{gameId:c4Game.id,col})}catch(err){toast(errorText(err))}
+});
+$('c4AgainBtn').addEventListener('click',async()=>{
+ if(!c4Game||c4Game.status!=='ended')return;
+ try{await sendC4('rematch',c4Game.opponentId,{gameId:c4Game.id});c4Game.board=Array(42).fill(null);c4Game.winner=null;c4Game.status='playing';c4Game.turn=String(c4Game.role==='host'?me.id:c4Game.opponentId);renderC4()}catch(err){toast(errorText(err))}
+});
+$('c4ExitBtn').addEventListener('click',async()=>{
+ if(!c4Game)return;try{await sendC4('exit',c4Game.opponentId,{gameId:c4Game.id})}catch(err){toast(errorText(err))}
+ c4Game.status='ended';c4Game.winner=null;renderC4();
+});
+$('c4BackToGames').addEventListener('click',()=>{$('c4GameArea').classList.add('hidden');$('gameCatalog').classList.remove('hidden')});
+
 let miniGame=null,miniGameRole=null;
 function gameWinner(board){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(const line of lines){const [a,b,c]=line;if(board[a]&&board[a]===board[b]&&board[a]===board[c])return board[a]}return board.every(Boolean)?'draw':null}
 function drawMiniGame(){
@@ -1005,8 +1139,8 @@ $('resetSettings').addEventListener('click',()=>{localStorage.removeItem('block_
 
 
 loadLauncherSettings();$('settingsStatus').textContent='Настройки сброшены.'});
-document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.view);if(b.dataset.view==='groupsScreen')loadGroups();if(b.dataset.view==='gamesScreen'){ $('gameCatalog').classList.remove('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');$('rpsGameArea').classList.add('hidden');loadBattleshipUsers()}}));
-document.querySelectorAll('[data-game-select]').forEach(b=>b.addEventListener('click',()=>{const game=b.dataset.gameSelect;$('gameCatalog').classList.add('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');if(game==='battleship'){$('bsGameArea').classList.remove('hidden');loadBattleshipUsers()}else if(game==='rps'){$('rpsGameArea').classList.remove('hidden');loadBattleshipUsers();renderRps()}else if(game==='tictactoe'){if(!friend){toast('Сначала выбери собеседника в чате BLOCK.');$('gameCatalog').classList.remove('hidden');return}$('tttGameArea').classList.remove('hidden');$('tttOpponentHint').textContent='Играешь с '+(friend.username||'собеседником')+'. Нажми «Пригласить друга».';miniGame=null;miniGameRole=null;$('miniGameInvite').hidden=false;$('miniGameAccept').hidden=true;$('miniGameReject').hidden=true;drawMiniGame()}}));
+document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.view);if(b.dataset.view==='groupsScreen')loadGroups();if(b.dataset.view==='gamesScreen'){ $('gameCatalog').classList.remove('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');$('rpsGameArea').classList.add('hidden');$('c4GameArea').classList.add('hidden');loadBattleshipUsers()}}));
+document.querySelectorAll('[data-game-select]').forEach(b=>b.addEventListener('click',()=>{const game=b.dataset.gameSelect;$('gameCatalog').classList.add('hidden');$('bsGameArea').classList.add('hidden');$('tttGameArea').classList.add('hidden');$('rpsGameArea').classList.add('hidden');$('c4GameArea').classList.add('hidden');if(game==='connect4'){$('c4GameArea').classList.remove('hidden');loadBattleshipUsers();renderC4()}else if(game==='battleship'){$('bsGameArea').classList.remove('hidden');loadBattleshipUsers()}else if(game==='rps'){$('rpsGameArea').classList.remove('hidden');loadBattleshipUsers();renderRps()}else if(game==='connect4'){$('c4GameArea').classList.remove('hidden');loadBattleshipUsers();renderC4()}else if(game==='tictactoe'){if(!friend){toast('Сначала выбери собеседника в чате BLOCK.');$('gameCatalog').classList.remove('hidden');return}$('tttGameArea').classList.remove('hidden');$('tttOpponentHint').textContent='Играешь с '+(friend.username||'собеседником')+'. Нажми «Пригласить друга».';miniGame=null;miniGameRole=null;$('miniGameInvite').hidden=false;$('miniGameAccept').hidden=true;$('miniGameReject').hidden=true;drawMiniGame()}}));
 $('bsBackToGames').addEventListener('click',()=>{$('bsGameArea').classList.add('hidden');$('gameCatalog').classList.remove('hidden')});
 $('sideProfileBtn').addEventListener('click',openProfile);
 let timerRemaining=300,timerInterval=null;
