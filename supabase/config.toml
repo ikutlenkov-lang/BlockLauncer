@@ -2,4 +2,6 @@
 verify_jwt = false
 
 [functions.block-admin]
-verify_jwt = true
+# The function validates the user's access token itself with auth.getUser(token).
+# Disable gateway verification so OPTIONS preflight reaches the function and CORS works.
+verify_jwt = false
